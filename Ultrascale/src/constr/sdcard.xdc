@@ -1,0 +1,8 @@
+set_property IOSTANDARD LVCMOS33 [get_ports SD_DCLK_0]
+set_property IOSTANDARD LVCMOS33 [get_ports SD_MISO_0]
+set_property IOSTANDARD LVCMOS33 [get_ports SD_MOSI_0]
+set_property IOSTANDARD LVCMOS33 [get_ports SD_nCS_0]
+set_property PACKAGE_PIN Y15 [get_ports SD_DCLK_0]
+set_property PACKAGE_PIN AB15 [get_ports SD_MISO_0]
+set_property PACKAGE_PIN AA15 [get_ports SD_MOSI_0]
+set_property PACKAGE_PIN AB14 [get_ports SD_nCS_0]

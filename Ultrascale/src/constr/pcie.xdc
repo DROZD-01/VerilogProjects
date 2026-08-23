@@ -1,0 +1,15 @@
+set_property PACKAGE_PIN AB7 [get_ports {diff_clock_rtl_0_clk_p[0]}]
+create_clock -period 10.000 -name pcie_sys_clk -waveform {0.000 5.000} [get_ports {diff_clock_rtl_0_clk_p[0]}]
+
+set_property PACKAGE_PIN AF7 [get_ports {pcie_7x_mgt_rtl_0_txp[3]}]
+set_property PACKAGE_PIN AE9 [get_ports {pcie_7x_mgt_rtl_0_txp[2]}]
+set_property PACKAGE_PIN AD7 [get_ports {pcie_7x_mgt_rtl_0_txp[1]}]
+set_property PACKAGE_PIN AC5 [get_ports {pcie_7x_mgt_rtl_0_txp[0]}]
+
+set_property LOC GTYE4_CHANNEL_X0Y3 [get_cells {design_1_i/xdma_0/inst/pcie4_ip_i/inst/design_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/design_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.design_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[3].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[3].GTYE4_CHANNEL_PRIM_INST}]
+set_property LOC GTYE4_CHANNEL_X0Y2 [get_cells {design_1_i/xdma_0/inst/pcie4_ip_i/inst/design_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/design_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.design_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[3].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[2].GTYE4_CHANNEL_PRIM_INST}]
+set_property LOC GTYE4_CHANNEL_X0Y1 [get_cells {design_1_i/xdma_0/inst/pcie4_ip_i/inst/design_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/design_xdma_0_0_pcie4_ip_gt_i_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.design_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[3].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[1].GTYE4_CHANNEL_PRIM_INST}]
+set_property LOC GTYE4_CHANNEL_X0Y0 [get_cells {design_1_i/xdma_0/inst/pcie4_ip_i/inst/design_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/design_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.design_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[3].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[0].GTYE4_CHANNEL_PRIM_INST}]
+
+set_property IOSTANDARD LVCMOS12 [get_ports reset_rtl_0]
+set_property PACKAGE_PIN T19 [get_ports reset_rtl_0]

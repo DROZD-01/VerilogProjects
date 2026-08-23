@@ -1,0 +1,86 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 08/22/2026 05:43:40 PM
+// Design Name: 
+// Module Name: prim_SRxRLED
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module prim_SRxRLED
+  #(
+    parameter int DATA_W  = 8    , // Shift register length
+    parameter bit RST_POL = 1'b0 , // Default value of shift register
+    parameter bit CLK_POL = 1'b0   // '0' - posedge, '1' - negedge
+  )
+  (
+    input  logic              C     , // Clock
+    input  logic              R     , // Reset
+    input  logic              CE    , // Clock Enable
+    input  logic              L     , // Load Enable
+    input  logic              SLI   , // Shift-left  IN
+    input  logic              SRI   , // Shift-right IN
+    input  logic              LEFT  , // Left('1', Qx -> Q0) / Right('0', Qx -> Q0)
+    input  logic [DATA_W-1:0] D     , // Parallel Input
+    output logic [DATA_W-1:0] Q     , // Parallel Output
+    output logic              SLO   , // Shift-left  OUT
+    output logic              SRO     // Shift-right OUT
+  );
+  
+  logic L_OR_CE ;
+  logic L_LEFT  ;
+  
+  logic [DATA_W-1:0] MDL;
+  logic [DATA_W-1:0] MDR;
+  logic [DATA_W-1:0] Q_b;
+  
+  always_comb
+  begin
+    L_OR_CE = CE   || L;
+    L_LEFT  = LEFT || L;
+    MDL = (L     )? D   : {Q_b[DATA_W-2:0], SLI};
+    MDR = (L_LEFT)? MDL : {SRI, Q_b[DATA_W-1:1]};
+    Q   = Q_b;
+    SLO = Q_b[DATA_W-1];
+    SRO = Q_b[0];
+  end
+  
+  generate
+  begin
+    if(CLK_POL == 1'b1)
+    begin
+      always_ff @(negedge C)
+      begin
+        if(R)
+          Q_b <= '{default:RST_POL};
+        else if(L_OR_CE)
+          Q_b <= MDR;
+      end
+    end
+    else if(CLK_POL == 1'b0)
+    begin
+      always_ff @(posedge C)
+      begin
+        if(R)
+          Q_b <= '{default:RST_POL};
+        else if(L_OR_CE)
+          Q_b <= MDR;
+      end
+    end
+  end
+  endgenerate
+  
+endmodule

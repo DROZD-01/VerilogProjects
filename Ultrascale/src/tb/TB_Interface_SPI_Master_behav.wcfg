@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="TB_Interface_SPI_Master_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="TB_Interface_SPI_Master" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.891667 us"></ZoomStartTime>
+      <ZoomEndTime time="8.231668 us"></ZoomEndTime>
+      <Cursor1Time time="2.015000 us"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="276"></NameColumnWidth>
+      <ValueColumnWidth column_width="120"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="8" />
+   <wvobject fp_name="/TB_Interface_SPI_Master/TB_RST_i" type="logic">
+      <obj_property name="ElementShortName">TB_RST_i</obj_property>
+      <obj_property name="ObjectShortName">TB_RST_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_Interface_SPI_Master/TB_CLK_i" type="logic">
+      <obj_property name="ElementShortName">TB_CLK_i</obj_property>
+      <obj_property name="ObjectShortName">TB_CLK_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_Interface_SPI_Master/TB_CS_o" type="logic">
+      <obj_property name="ElementShortName">TB_CS_o</obj_property>
+      <obj_property name="ObjectShortName">TB_CS_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_Interface_SPI_Master/TB_SCLK_o" type="logic">
+      <obj_property name="ElementShortName">TB_SCLK_o</obj_property>
+      <obj_property name="ObjectShortName">TB_SCLK_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_Interface_SPI_Master/TB_MOSI_o" type="logic">
+      <obj_property name="ElementShortName">TB_MOSI_o</obj_property>
+      <obj_property name="ObjectShortName">TB_MOSI_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_Interface_SPI_Master/TB_MISO_i" type="logic">
+      <obj_property name="ElementShortName">TB_MISO_i</obj_property>
+      <obj_property name="ObjectShortName">TB_MISO_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="group28" type="group">
+      <obj_property name="label">TB</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_SET_Valid" type="logic">
+         <obj_property name="ElementShortName">TB_SET_Valid</obj_property>
+         <obj_property name="ObjectShortName">TB_SET_Valid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_SET_SPI_Mode" type="array">
+         <obj_property name="ElementShortName">TB_SET_SPI_Mode[2:0]</obj_property>
+         <obj_property name="ObjectShortName">TB_SET_SPI_Mode[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_SET_MSB" type="logic">
+         <obj_property name="ElementShortName">TB_SET_MSB</obj_property>
+         <obj_property name="ObjectShortName">TB_SET_MSB</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_SET_CS_Keep" type="logic">
+         <obj_property name="ElementShortName">TB_SET_CS_Keep</obj_property>
+         <obj_property name="ObjectShortName">TB_SET_CS_Keep</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_SET_CS_Pol" type="logic">
+         <obj_property name="ElementShortName">TB_SET_CS_Pol</obj_property>
+         <obj_property name="ObjectShortName">TB_SET_CS_Pol</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_SET_CS_WaitLength" type="array">
+         <obj_property name="ElementShortName">TB_SET_CS_WaitLength[5:0]</obj_property>
+         <obj_property name="ObjectShortName">TB_SET_CS_WaitLength[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_SET_CS_WaitStart" type="array">
+         <obj_property name="ElementShortName">TB_SET_CS_WaitStart[5:0]</obj_property>
+         <obj_property name="ObjectShortName">TB_SET_CS_WaitStart[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_SET_CS_WaitEnd" type="array">
+         <obj_property name="ElementShortName">TB_SET_CS_WaitEnd[5:0]</obj_property>
+         <obj_property name="ObjectShortName">TB_SET_CS_WaitEnd[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_TRC_o" type="logic">
+         <obj_property name="ElementShortName">TB_TRC_o</obj_property>
+         <obj_property name="ObjectShortName">TB_TRC_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_DRE_o" type="logic">
+         <obj_property name="ElementShortName">TB_DRE_o</obj_property>
+         <obj_property name="ObjectShortName">TB_DRE_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_Valid_i" type="logic">
+         <obj_property name="ElementShortName">TB_Valid_i</obj_property>
+         <obj_property name="ObjectShortName">TB_Valid_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_Data_DW" type="array">
+         <obj_property name="ElementShortName">TB_Data_DW[4:0]</obj_property>
+         <obj_property name="ObjectShortName">TB_Data_DW[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_Data_i" type="array">
+         <obj_property name="ElementShortName">TB_Data_i[15:0]</obj_property>
+         <obj_property name="ObjectShortName">TB_Data_i[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_Valid_o" type="logic">
+         <obj_property name="ElementShortName">TB_Valid_o</obj_property>
+         <obj_property name="ObjectShortName">TB_Valid_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/TB_Data_o" type="array">
+         <obj_property name="ElementShortName">TB_Data_o[15:0]</obj_property>
+         <obj_property name="ObjectShortName">TB_Data_o[15:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group90" type="group">
+      <obj_property name="label">UUT</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/RST_i" type="logic">
+         <obj_property name="ElementShortName">RST_i</obj_property>
+         <obj_property name="ObjectShortName">RST_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/CLK_i" type="logic">
+         <obj_property name="ElementShortName">CLK_i</obj_property>
+         <obj_property name="ObjectShortName">CLK_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/TRC_o" type="logic">
+         <obj_property name="ElementShortName">TRC_o</obj_property>
+         <obj_property name="ObjectShortName">TRC_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/DRE_o" type="logic">
+         <obj_property name="ElementShortName">DRE_o</obj_property>
+         <obj_property name="ObjectShortName">DRE_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="group150" type="group">
+         <obj_property name="label">SPI I/O</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/CS_o" type="logic">
+            <obj_property name="ElementShortName">CS_o</obj_property>
+            <obj_property name="ObjectShortName">CS_o</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SCLK_o" type="logic">
+            <obj_property name="ElementShortName">SCLK_o</obj_property>
+            <obj_property name="ObjectShortName">SCLK_o</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/MOSI_o" type="logic">
+            <obj_property name="ElementShortName">MOSI_o</obj_property>
+            <obj_property name="ObjectShortName">MOSI_o</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/MISO_i" type="logic">
+            <obj_property name="ElementShortName">MISO_i</obj_property>
+            <obj_property name="ObjectShortName">MISO_i</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="group148" type="group">
+         <obj_property name="label">Parallel I/O</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/Valid_i" type="logic">
+            <obj_property name="ElementShortName">Valid_i</obj_property>
+            <obj_property name="ObjectShortName">Valid_i</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/Data_DW" type="array">
+            <obj_property name="ElementShortName">Data_DW[4:0]</obj_property>
+            <obj_property name="ObjectShortName">Data_DW[4:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/Data_i" type="array">
+            <obj_property name="ElementShortName">Data_i[15:0]</obj_property>
+            <obj_property name="ObjectShortName">Data_i[15:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/Valid_o" type="logic">
+            <obj_property name="ElementShortName">Valid_o</obj_property>
+            <obj_property name="ObjectShortName">Valid_o</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/Data_o" type="array">
+            <obj_property name="ElementShortName">Data_o[15:0]</obj_property>
+            <obj_property name="ObjectShortName">Data_o[15:0]</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="group149" type="group">
+         <obj_property name="label">Settings</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SET_Valid" type="logic">
+            <obj_property name="ElementShortName">SET_Valid</obj_property>
+            <obj_property name="ObjectShortName">SET_Valid</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SET_SPI_Mode" type="array">
+            <obj_property name="ElementShortName">SET_SPI_Mode[2:0]</obj_property>
+            <obj_property name="ObjectShortName">SET_SPI_Mode[2:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SET_MSB" type="logic">
+            <obj_property name="ElementShortName">SET_MSB</obj_property>
+            <obj_property name="ObjectShortName">SET_MSB</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SET_CS_Keep" type="logic">
+            <obj_property name="ElementShortName">SET_CS_Keep</obj_property>
+            <obj_property name="ObjectShortName">SET_CS_Keep</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SET_CS_Pol" type="logic">
+            <obj_property name="ElementShortName">SET_CS_Pol</obj_property>
+            <obj_property name="ObjectShortName">SET_CS_Pol</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SET_CS_WaitLength" type="array">
+            <obj_property name="ElementShortName">SET_CS_WaitLength[5:0]</obj_property>
+            <obj_property name="ObjectShortName">SET_CS_WaitLength[5:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SET_CS_WaitStart" type="array">
+            <obj_property name="ElementShortName">SET_CS_WaitStart[5:0]</obj_property>
+            <obj_property name="ObjectShortName">SET_CS_WaitStart[5:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SET_CS_WaitEnd" type="array">
+            <obj_property name="ElementShortName">SET_CS_WaitEnd[5:0]</obj_property>
+            <obj_property name="ObjectShortName">SET_CS_WaitEnd[5:0]</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SET_CPOL" type="logic">
+         <obj_property name="ElementShortName">SET_CPOL</obj_property>
+         <obj_property name="ObjectShortName">SET_CPOL</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SET_Preload" type="logic">
+         <obj_property name="ElementShortName">SET_Preload</obj_property>
+         <obj_property name="ObjectShortName">SET_Preload</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SET_RX_Edge" type="logic">
+         <obj_property name="ElementShortName">SET_RX_Edge</obj_property>
+         <obj_property name="ObjectShortName">SET_RX_Edge</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SET_TX_Edge" type="logic">
+         <obj_property name="ElementShortName">SET_TX_Edge</obj_property>
+         <obj_property name="ObjectShortName">SET_TX_Edge</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SB" type="array">
+         <obj_property name="ElementShortName">SB</obj_property>
+         <obj_property name="ObjectShortName">SB</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/Buffer" type="array">
+         <obj_property name="ElementShortName">Buffer</obj_property>
+         <obj_property name="ObjectShortName">Buffer</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/IData" type="array">
+         <obj_property name="ElementShortName">IData</obj_property>
+         <obj_property name="ObjectShortName">IData</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/IData.CE" type="logic">
+            <obj_property name="ElementShortName">.CE</obj_property>
+            <obj_property name="ObjectShortName">.CE</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/IData.L" type="logic">
+            <obj_property name="ElementShortName">.L</obj_property>
+            <obj_property name="ObjectShortName">.L</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/IData.SLI" type="logic">
+            <obj_property name="ElementShortName">.SLI</obj_property>
+            <obj_property name="ObjectShortName">.SLI</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/IData.SRI" type="logic">
+            <obj_property name="ElementShortName">.SRI</obj_property>
+            <obj_property name="ObjectShortName">.SRI</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/IData.LEFT" type="logic">
+            <obj_property name="ElementShortName">.LEFT</obj_property>
+            <obj_property name="ObjectShortName">.LEFT</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/IData.D" type="array">
+            <obj_property name="ElementShortName">.D[15:0]</obj_property>
+            <obj_property name="ObjectShortName">.D[15:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_Interface_SPI_Master/UUT/IData.Q" type="array">
+            <obj_property name="ElementShortName">.Q[15:0]</obj_property>
+            <obj_property name="ObjectShortName">.Q[15:0]</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/Trans" type="array">
+         <obj_property name="ElementShortName">Trans</obj_property>
+         <obj_property name="ObjectShortName">Trans</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/OData" type="array">
+         <obj_property name="ElementShortName">OData</obj_property>
+         <obj_property name="ObjectShortName">OData</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/MOSI_Sel" type="logic">
+         <obj_property name="ElementShortName">MOSI_Sel</obj_property>
+         <obj_property name="ObjectShortName">MOSI_Sel</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/State" type="array">
+         <obj_property name="ElementShortName">State[2:0]</obj_property>
+         <obj_property name="ObjectShortName">State[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/CS_Buf" type="logic">
+         <obj_property name="ElementShortName">CS_Buf</obj_property>
+         <obj_property name="ObjectShortName">CS_Buf</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SCLK_Buf" type="logic">
+         <obj_property name="ElementShortName">SCLK_Buf</obj_property>
+         <obj_property name="ObjectShortName">SCLK_Buf</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/MOSI_Buf" type="logic">
+         <obj_property name="ElementShortName">MOSI_Buf</obj_property>
+         <obj_property name="ObjectShortName">MOSI_Buf</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/TRC_Buf" type="logic">
+         <obj_property name="ElementShortName">TRC_Buf</obj_property>
+         <obj_property name="ObjectShortName">TRC_Buf</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/DRE_Buf" type="logic">
+         <obj_property name="ElementShortName">DRE_Buf</obj_property>
+         <obj_property name="ObjectShortName">DRE_Buf</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SCLK_Div" type="array">
+         <obj_property name="ElementShortName">SCLK_Div[3:0]</obj_property>
+         <obj_property name="ObjectShortName">SCLK_Div[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SCLK_HBit" type="logic">
+         <obj_property name="ElementShortName">SCLK_HBit</obj_property>
+         <obj_property name="ObjectShortName">SCLK_HBit</obj_property>
+         <obj_property name="CustomSignalColor">#FF0080</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SCLK_EdgeP" type="logic">
+         <obj_property name="ElementShortName">SCLK_EdgeP</obj_property>
+         <obj_property name="ObjectShortName">SCLK_EdgeP</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/SCLK_EdgeN" type="logic">
+         <obj_property name="ElementShortName">SCLK_EdgeN</obj_property>
+         <obj_property name="ObjectShortName">SCLK_EdgeN</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/Edge_RX" type="logic">
+         <obj_property name="ElementShortName">Edge_RX</obj_property>
+         <obj_property name="ObjectShortName">Edge_RX</obj_property>
+         <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/Edge_TX" type="logic">
+         <obj_property name="ElementShortName">Edge_TX</obj_property>
+         <obj_property name="ObjectShortName">Edge_TX</obj_property>
+         <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/BitCount_TX" type="array">
+         <obj_property name="ElementShortName">BitCount_TX[4:0]</obj_property>
+         <obj_property name="ObjectShortName">BitCount_TX[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/BitCount_RX" type="array">
+         <obj_property name="ElementShortName">BitCount_RX[4:0]</obj_property>
+         <obj_property name="ObjectShortName">BitCount_RX[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/BitCount_TX_Done" type="logic">
+         <obj_property name="ElementShortName">BitCount_TX_Done</obj_property>
+         <obj_property name="ObjectShortName">BitCount_TX_Done</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/BitCount_RX_Done" type="logic">
+         <obj_property name="ElementShortName">BitCount_RX_Done</obj_property>
+         <obj_property name="ObjectShortName">BitCount_RX_Done</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/MISO_BitShift" type="array">
+         <obj_property name="ElementShortName">MISO_BitShift[4:0]</obj_property>
+         <obj_property name="ObjectShortName">MISO_BitShift[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/Count_WaitLength" type="array">
+         <obj_property name="ElementShortName">Count_WaitLength[5:0]</obj_property>
+         <obj_property name="ObjectShortName">Count_WaitLength[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/Count_WaitStart" type="array">
+         <obj_property name="ElementShortName">Count_WaitStart[5:0]</obj_property>
+         <obj_property name="ObjectShortName">Count_WaitStart[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/Count_WaitEnd" type="array">
+         <obj_property name="ElementShortName">Count_WaitEnd[5:0]</obj_property>
+         <obj_property name="ObjectShortName">Count_WaitEnd[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/CDone_WaitLength" type="logic">
+         <obj_property name="ElementShortName">CDone_WaitLength</obj_property>
+         <obj_property name="ObjectShortName">CDone_WaitLength</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/CDone_WaitStart" type="logic">
+         <obj_property name="ElementShortName">CDone_WaitStart</obj_property>
+         <obj_property name="ObjectShortName">CDone_WaitStart</obj_property>
+      </wvobject>
+      <wvobject fp_name="/TB_Interface_SPI_Master/UUT/CDone_WaitEnd" type="logic">
+         <obj_property name="ElementShortName">CDone_WaitEnd</obj_property>
+         <obj_property name="ObjectShortName">CDone_WaitEnd</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>
