@@ -288,6 +288,7 @@ module Interface_SPI_Master
       case(State)
         IDLE     :
         begin
+          TRC_Buf <= 1'b1;
           if(~DRE_Buf)
           begin
             State    <= SETTINGS ;
@@ -380,7 +381,7 @@ module Interface_SPI_Master
   always_comb
   begin
     case(State)
-      PRELOAD : OData.CE = (SB.Preload)? 1'b1 : 1'b0;
+      PRELOAD : OData.CE = ((SCLK_HBit | FastPreload) & SB.Preload)? 1'b1 : 1'b0;
       TRANSMIT: OData.CE = Edge_TX & ~BitCount_TX_Done;
       default : OData.CE = 1'b0;
     endcase
