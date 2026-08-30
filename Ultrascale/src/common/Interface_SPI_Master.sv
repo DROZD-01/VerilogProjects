@@ -50,7 +50,7 @@ module Interface_SPI_Master
   #(
     parameter  real SPI_BAUDRATE =   5e+6 , // SPI frequency in Hz
     parameter  real SYSTEM_FREQ  = 100e+6 , // System clock frequency in Hz
-    parameter  int  MAX_DATAW    =     16 , // Maximum SPI packet size
+    parameter  int  MAX_DATAW    =     32 , // Maximum SPI packet size
     parameter  bit  DEFAULT_CS   =   1'b1 , // Default CS   value on reset
     parameter  bit  DEFAULT_SCLK =   1'b0 , // Default SCLK value on reset
     localparam int  MAX_DATABW   = $clog2(MAX_DATAW + 1)
@@ -237,7 +237,7 @@ module Interface_SPI_Master
   
   always_ff @(posedge CLK_i)
   begin:wait_proc
-    if(RST_i || (State == IDLE))
+    if(RST_i || State == IDLE)
     begin
       Count_WaitStart  <= 'd0;
       Count_WaitEnd    <= 'd0;
@@ -301,6 +301,7 @@ module Interface_SPI_Master
         begin
           if(DW_IsEmpty)
           begin
+            DRE_Buf <= 1'b1;
             TRC_Buf <= 1'b1;
             State   <= IDLE;
           end
@@ -382,7 +383,7 @@ module Interface_SPI_Master
   begin
     case(State)
       PRELOAD : OData.CE = ((SCLK_HBit | FastPreload) & SB.Preload)? 1'b1 : 1'b0;
-      TRANSMIT: OData.CE = Edge_TX & ~BitCount_TX_Done;
+      TRANSMIT: OData.CE = (Edge_TX & ~BitCount_TX_Done & CDone_WaitStart);
       default : OData.CE = 1'b0;
     endcase
     
@@ -392,8 +393,8 @@ module Interface_SPI_Master
       default  : OData.L = 1'b0;
     endcase
     
-    OData.SLI   = 1'b1        ;
-    OData.SRI   = 1'b1        ;
+    OData.SLI   = 1'b0        ;
+    OData.SRI   = 1'b0        ;
     OData.LEFT  = SB.MSB      ;
     OData.D     = Buffer.Data ;
     Trans.Data  = OData.Q     ;
@@ -423,7 +424,7 @@ module Interface_SPI_Master
   always_comb
   begin
     case(State)
-      TRANSMIT: IData.CE = Edge_RX & ~BitCount_RX_Done;
+      TRANSMIT: IData.CE = (Edge_RX & ~BitCount_RX_Done & CDone_WaitStart);
       default : IData.CE = 1'b0;
     endcase
     
