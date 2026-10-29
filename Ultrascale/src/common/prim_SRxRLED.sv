@@ -33,7 +33,7 @@ module prim_SRxRLED
     input  logic              L     , // Load Enable
     input  logic              SLI   , // Shift-left  IN
     input  logic              SRI   , // Shift-right IN
-    input  logic              LEFT  , // Left('1', Qx -> Q0) / Right('0', Qx -> Q0)
+    input  logic              LEFT  , // Left('1', Qx <- Q0) / Right('0', Qx -> Q0)
     input  logic [DATA_W-1:0] D     , // Parallel Input
     output logic [DATA_W-1:0] Q     , // Parallel Output
     output logic              SLO   , // Shift-left  OUT
