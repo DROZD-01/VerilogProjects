@@ -43,7 +43,16 @@
 *   POL_RESET       :: Select RESET port polarity
 *     '0' - RESET
 *     '1' - RESETn
-*   EN_SAFECLKSTART :: Enable Safe clock startup
+*   EN_SAFECLKSTART :: Enable safe clock startup
+*   EN_SEQUENCER    :: Enable safe clock startup sequencing
+*   MODE_SEQUENCER  :: Clock startup sequence
+*     '1' - Sequencing stage 1 (LOCKED)
+*     '2' - Sequencing stage 2 (From stage 1)
+*     '3' - Sequencing stage 3 (From stage 2)
+*     '4' - Sequencing stage 4 (From stage 3)
+*     '5' - Sequencing stage 5 (From stage 4)
+*     '6' - Sequencing stage 6 (From stage 5)
+*     '7' - Sequencing stage 7 (From stage 6)
 *   EN_CLKMONITOR   :: Enable clock monitoring
 *   EN_DYNRECONF    :: Enable dynamic reconfig 
 *   MODE_DYNRECONF  :: Dynamic reconfig interface
@@ -61,24 +70,51 @@ import prim_CLK_Wizard_pkg::*;
 
 module prim_CLK_Wizard
   #(
-    parameter             FPGA_FAMILY     = "SERIES7"                                   ,
-    parameter             FPGA_SERIES     = "ARTIX"                                     ,
-    parameter icb_e       MODE_CLKIN      = ICB0                                        ,
-    parameter bit   [2:1] EN_CLKIN_X      = 2'b11                                       ,
-    parameter bit   [7:1] EN_CLKOUT_X     = 7'b0001111                                  ,
-    parameter bit   [4:1] EN_CLKOUTB_X    = 4'b1111                                     ,
-    parameter ocb_e [7:1] MODE_CLKOUT_X   = '{OCB0, OCB0, OCB0, OCB0, OCB0, OCB0, OCB0} ,
-    parameter fcb_e       MODE_CLKFB      = FCB0                                        ,
-    parameter bit         EN_CLKFB_DIFF   = 1'b0                                        ,
-    parameter bit         EN_RESET        = 1'b1                                        ,
-    parameter bit         POL_RESET       = 1'b0                                        ,
-    parameter bit         EN_SAFECLKSTART = 1'b1                                        ,
-    parameter bit         EN_SEQUENCER    = 1'b0                                        ,
-    parameter seq_e [7:1] MODE_SEQUENCER  = '{SEQ1, SEQ1, SEQ1, SEQ1, SEQ1, SEQ1, SEQ1} ,
-    parameter bit         EN_CLKMONITOR   = 1'b0                                        ,
-    parameter bit         EN_DYNRECONF    = 1'b0                                        ,
-    parameter bit         MODE_DYNRECONF  = 1'b0                                         
+    // FPGA info
+    parameter             FPGA_FAMILY      = "SERIES7"                                   ,
+    parameter             FPGA_SERIES      = "ARTIX"                                     ,
+    parameter             FPGA_SPEEDGRADE  = "095V-1LI"                                  ,
     
+    // Clocking parameters
+    parameter icb_e       MODE_CLKIN       = ICB0                                        ,
+    parameter bit   [2:1] EN_CLKIN_X       = 2'b01                                       ,
+    parameter clki_tfrq_t FREQ_CLKIN_X     = '{200e6, 100e6}                             ,
+    parameter bit   [7:1] EN_CLKOUT_X      = 7'b1111111                                  ,
+    parameter bit   [4:1] EN_CLKOUTB_X     = 4'b0000                                     ,
+    parameter ocb_e [7:1] MODE_CLKOUT_X    = '{OCB0, OCB0, OCB0, OCB0, OCB0, OCB0, OCB0} ,
+    parameter clko_tfrq_t FREQ_CLKOUT_X    = '{106e6, 105e6, 104e6, 103e6, 102e6, 101e6, 100e6},
+    
+    // Clocking features
+    parameter bit         EN_PHASE_ALIGNM  = 1'b1                                        ,
+    parameter fcb_e       MODE_CLKFB       = FCB0                                        ,
+    parameter bit         EN_CLKFB_DIFF    = 1'b0                                        ,
+    
+    parameter bit         EN_DYNRECONF     = 1'b0                                        ,
+    parameter bit         MODE_DYNRECONF   = 1'b0                                        ,
+    // Safe start & sequencing
+    parameter bit         EN_SAFECLKSTART  = 1'b1                                        ,
+    parameter bit         EN_SEQUENCER     = 1'b1                                        ,
+    parameter seq_e [7:1] MODE_SEQUENCER   = '{3'd4, 3'd3, 3'd2, 3'd1, 3'd3, 3'd2, 3'd1} ,
+    // Spread Spectrum
+    parameter bit         EN_SPREAD_SPECTR = 1'b0                                        ,
+    parameter bit         EN_FINE_PS_FB    = 1'b0                                        ,
+    parameter bit   [7:1] EN_FINE_PS_OUT   = 7'b0000000                                  ,
+    parameter             SS_OPMODE        = "CENTER_HIGH"                               ,
+    parameter int         SS_MOD_PERIOD    = 10000                                       ,
+    
+    parameter bit         EN_DYNPHASESHIFT = 1'b0                                        ,
+    parameter bit         EN_CDDC          = 1'b0                                        , // 
+    parameter bit         EN_CLKMONITOR    = 1'b0                                        , // 
+    
+    // Optional I/O
+    parameter bit         EN_LOCKED        = 1'b1                                        ,
+    parameter bit         EN_RESET         = 1'b1                                        ,
+    parameter bit         POL_RESET        = 1'b0                                        ,
+    parameter bit         EN_POWER_DOWN    = 1'b1                                        ,
+    parameter bit         EN_STOPPED_CLKIN = 1'b1                                        ,
+    parameter bit         EN_STOPPED_CLKFB = 1'b1                                        ,
+    // Miscellaneous
+    parameter bit [1:0]   WIZ_DEBUG        = 2'd3                                        
   )
   (
     input  logic        CLKIN_SEL     , // 
@@ -151,7 +187,13 @@ module prim_CLK_Wizard
     output logic        STOPPED_CLKFB   // 
   );
   
-  logic MMCM_LOCKED;
+  localparam bit [7:1] EN_CLKOUT_VX  = (EN_SPREAD_SPECTR == 1'b1)? (EN_CLKOUT_X  & 7'd1110011) : EN_CLKOUT_X ;
+  localparam bit [4:1] EN_CLKOUTB_VX = (EN_SPREAD_SPECTR == 1'b1)? (EN_CLKOUTB_X & 4'd0011   ) : EN_CLKOUTB_X;
+  localparam           SS_ENABLE     = (EN_SPREAD_SPECTR == 1'b1)? "TRUE" : "FALSE";
+  
+  localparam mmcm_sw_char_t  MMCM_SWCHAR = MMCM_SwChar_f    (FPGA_FAMILY, FPGA_SERIES, FPGA_SPEEDGRADE);
+  localparam mmcm_paramlim_t MMCM_PARLIM = MMCM_ParamLim_f  (FPGA_FAMILY);
+  localparam mmcm_param_t    MMCM_PARAMS = MMCM_ParamCalc_f (WIZ_DEBUG, MMCM_SWCHAR, MMCM_PARLIM, EN_CLKIN_X, FREQ_CLKIN_X, EN_CLKOUT_X, FREQ_CLKOUT_X);
   
   //------------------------------------------------------------------------------------------
   //  Clock input gen
@@ -301,10 +343,10 @@ module prim_CLK_Wizard
   logic [7:1] MMCM_CLKOUT   ;
   logic [4:1] MMCM_CLKOUTB  ;
   
-  logic [7:1] CLKOUT_X;
-  logic [7:1] CLKOUT_X_CE;
-  logic [7:1] CLKOUT_X_EN;
-  logic [4:1] CLKOUTB_X;
+  logic [7:1] CLKOUT_X    ;
+  logic [7:1] CLKOUT_X_CE ;
+  logic [7:1] CLKOUT_X_EN ;
+  logic [4:1] CLKOUTB_X   ;
   logic [4:1] CLKOUTB_X_CE;
   logic [4:1] CLKOUTB_X_EN;
   
@@ -320,9 +362,9 @@ module prim_CLK_Wizard
     case(EN_SAFECLKSTART)
       1'b0: // Safe clock startup disabled
       begin:safest_off
-        for(clko = 1; clko < 7; clko = clko + 'd1)
+        for(clko = 1; clko < 8; clko = clko + 'd1)
         begin
-          case(EN_CLKOUT_X[clko])
+          case(EN_CLKOUT_VX[clko])
             1'b1: 
             begin:o_on
               case(MODE_CLKOUT_X[clko])
@@ -343,9 +385,9 @@ module prim_CLK_Wizard
           endcase
         end
         
-        for(clkob = 1; clkob < 4; clkob = clkob + 'd1)
+        for(clkob = 1; clkob < 5; clkob = clkob + 'd1)
         begin
-          case(EN_CLKOUTB_X[clkob])
+          case(EN_CLKOUTB_VX[clkob])
             1'b1: 
             begin:ob_on
               case(MODE_CLKOUT_X[clkob])
@@ -369,16 +411,66 @@ module prim_CLK_Wizard
       
       1'b1: // Safe clock startup enabled
       begin:safest_on
-        for(clko = 1; clko < 7; clko = clko + 'd1)
+        
+        logic [7:1]       clk_seq_f ;
+        logic [7:1] [7:0] clk_seq_x ;
+        // Sequencing for inverted clocks is sourced fron regular ones
+        logic [4:1]       clkb_seq_f;
+        logic [4:1] [7:0] clkb_seq_x;
+        
+        case(EN_SEQUENCER)
+          1'b0: // Sequencing disabled
+          begin
+            for(clko = 1; clko < 8; clko = clko + 'd1)
+            begin
+              if(EN_CLKOUT_VX[clko]) assign clk_seq_f[clko] = MMCM_LOCKED;
+            end
+            
+            for(clkob = 1; clkob < 5; clkob = clkob + 'd1)
+            begin
+              if(EN_CLKOUTB_VX[clkob]) assign clkb_seq_f[clkob] = MMCM_LOCKED;
+            end
+          end
+          
+          1'b1: // Sequencing enabled
+          begin
+            localparam seq_e [7:1] CALC_SEQUENCE = GenerateSequencer_f(MODE_SEQUENCER, EN_CLKOUT_VX);
+            
+            for(clko = 1; clko < 8; clko = clko + 'd1)
+            begin
+              $info("[CLKWIZ] CALC_SEQUENCE[%0d] = %3d", clko, CALC_SEQUENCE[clko]);
+              if(EN_CLKOUT_VX[clko]) 
+              begin
+                if(CALC_SEQUENCE[clko] == 3'd0)
+                  assign clk_seq_f[clko] = MMCM_LOCKED;
+                else
+                  assign clk_seq_f[clko] = clk_seq_x[CALC_SEQUENCE[clko]][7];
+              end
+            end
+            
+            for(clkob = 1; clkob < 5; clkob = clkob + 'd1)
+            begin
+              if(EN_CLKOUTB_VX[clkob])
+              begin
+                if(CALC_SEQUENCE[clkob] == 3'd0)
+                  assign clkb_seq_f[clkob] = MMCM_LOCKED;
+                else
+                  assign clkb_seq_f[clkob] = clk_seq_x[CALC_SEQUENCE][7];
+              end
+            end
+          end
+          
+          default: $error("[CLKWIZ] ClockOUT - EN_SEQUENCER has incorrect value");
+        endcase
+        
+        
+        for(clko = 1; clko < 8; clko = clko + 'd1)
         begin
-          case(EN_CLKOUT_X[clko])
+          case(EN_CLKOUT_VX[clko])
             1'b1: 
             begin:o_on
-              
-              logic [7:0] seq_reg_x;
-              
-              BUFGCE clkout_bufgce    (.I (MMCM_CLKOUT[clko]), .CE (seq_reg_x[7]), .O (CLKOUT_X[clko]   ));
-              BUFGCE clkout_bufgce_en (.I (MMCM_CLKOUT[clko]), .CE (1'b1        ), .O (CLKOUT_X_EN[clko]));
+              BUFGCE clkout_bufgce    (.I (MMCM_CLKOUT[clko]), .CE (clk_seq_x[clko][7]), .O (CLKOUT_X[clko]   ));
+              BUFGCE clkout_bufgce_en (.I (MMCM_CLKOUT[clko]), .CE (1'b1              ), .O (CLKOUT_X_EN[clko]));
               
               case(EN_RESET)
                 1'b1:
@@ -388,16 +480,16 @@ module prim_CLK_Wizard
                     begin:rpos
                       always_ff @(posedge CLKOUT_X_EN[clko] or posedge RESET) 
                       begin
-                        if(RESET == 1'b1) seq_reg_x <= 8'h00;
-                        else seq_reg_x <= {seq_reg_x[6:0], MMCM_LOCKED};
+                        if(RESET == 1'b1) clk_seq_x[clko] <= 8'h00;
+                        else clk_seq_x[clko] <= {clk_seq_x[clko][6:0], clk_seq_f[clko]};
                       end
                     end
                     1'b1:
                     begin:rneg
                       always_ff @(posedge CLKOUT_X_EN[clko] or negedge RESETn) 
                       begin
-                        if(RESETn == 1'b0) seq_reg_x <= 8'h00;
-                        else seq_reg_x <= {seq_reg_x[6:0], MMCM_LOCKED};
+                        if(RESETn == 1'b0) clk_seq_x[clko] <= 8'h00;
+                        else clk_seq_x[clko] <= {clk_seq_x[clko][6:0], clk_seq_f[clko]};
                       end
                     end
                     
@@ -409,7 +501,7 @@ module prim_CLK_Wizard
                 begin:rst_off
                   always_ff @(posedge CLKOUT_X_EN[clko]) 
                   begin
-                    seq_reg_x <= {seq_reg_x[6:0], MMCM_LOCKED};
+                    clk_seq_x[clko] <= {clk_seq_x[clko][6:0], clk_seq_f[clko]};
                   end
                 end
                 
@@ -418,6 +510,7 @@ module prim_CLK_Wizard
               
               if(MODE_CLKOUT_X[clko] != OCB3) $warning("[CLKWIZ] ClockOUT - 'Safe Clock Startup' only supports MODE_CLKOUT_X[%0d] = OCB3(BUFGCE)", clko);
             end
+            
             1'b0: 
             begin:o_off
               assign CLKOUT_X[clko] = 1'b0;
@@ -426,15 +519,13 @@ module prim_CLK_Wizard
           endcase
         end
         
-        for(clkob = 1; clkob < 4; clkob = clkob + 'd1)
+        for(clkob = 1; clkob < 5; clkob = clkob + 'd1)
         begin
-          case(EN_CLKOUTB_X[clkob])
+          case(EN_CLKOUTB_VX[clkob])
             1'b1: 
             begin:ob_on
-              logic [7:0] seqb_reg_x;
-              
-              BUFGCE clkout_bufgce    (.I (MMCM_CLKOUTB[clkob]), .CE (seqb_reg_x[7]), .O (CLKOUTB_X[clkob]   ));
-              BUFGCE clkout_bufgce_en (.I (MMCM_CLKOUTB[clkob]), .CE (1'b1         ), .O (CLKOUTB_X_EN[clkob]));
+              BUFGCE clkout_bufgce    (.I (MMCM_CLKOUTB[clkob]), .CE (clkb_seq_x[clkob][7]), .O (CLKOUTB_X[clkob]   ));
+              BUFGCE clkout_bufgce_en (.I (MMCM_CLKOUTB[clkob]), .CE (1'b1                ), .O (CLKOUTB_X_EN[clkob]));
               
               case(EN_RESET)
                 1'b1:
@@ -444,16 +535,16 @@ module prim_CLK_Wizard
                     begin:rpos
                       always_ff @(posedge CLKOUTB_X_EN[clkob] or posedge RESET) 
                       begin
-                        if(RESET == 1'b1) seqb_reg_x <= 8'h00;
-                        else seqb_reg_x <= {seqb_reg_x[6:0], MMCM_LOCKED};
+                        if(RESET == 1'b1) clkb_seq_x[clkob] <= 8'h00;
+                        else clkb_seq_x[clkob] <= {clkb_seq_x[clkob][6:0], clkb_seq_f[clkob]};
                       end
                     end
                     1'b1:
                     begin:rneg
                       always_ff @(posedge CLKOUTB_X_EN[clkob] or negedge RESETn) 
                       begin
-                        if(RESETn == 1'b0) seqb_reg_x <= 8'h00;
-                        else seqb_reg_x <= {seqb_reg_x[6:0], MMCM_LOCKED};
+                        if(RESETn == 1'b0) clkb_seq_x[clkob] <= 8'h00;
+                        else clkb_seq_x[clkob] <= {clkb_seq_x[clkob][6:0], clkb_seq_f[clkob]};
                       end
                     end
                     
@@ -465,7 +556,7 @@ module prim_CLK_Wizard
                 begin:rst_off
                   always_ff @(posedge CLKOUTB_X_EN[clkob]) 
                   begin
-                    seqb_reg_x <= {seqb_reg_x[6:0], MMCM_LOCKED};
+                    clkb_seq_x[clkob] <= {clkb_seq_x[clkob][6:0], clkb_seq_f[clkob]};
                   end
                 end
                 
@@ -494,75 +585,175 @@ module prim_CLK_Wizard
   logic MMCM_CLKFB_OUTB;
   
   generate
-    case(MODE_CLKFB)
-      FCB0: // Automatic control On-Chip
-      begin:clkfb_0
+    case(EN_PHASE_ALIGNM)
+      1'b0: // Phase Alignment disabled
+      begin
         assign CLKFB_OUT   = 1'b0;
         assign CLKFB_OUT_P = 1'b0;
         assign CLKFB_OUT_N = 1'b0;
         
-        BUFG clkf_buf (.I (MMCM_CLKFB_OUT), .O (MMCM_CLKFB_IN));
-        
-        if(EN_CLKFB_DIFF == 1'b1) 
-          $warning("[CLKWIZ] ClockFeedback - EN_CLKFB_DIFF is not available in 'Automatic control On-Chip' mode");
+        assign MMCM_CLKFB_IN = MMCM_CLKFB_OUT;
       end
       
-      FCB1: // Automatic control Off-Chip
-      begin:clkfb_1
-        case(EN_CLKFB_DIFF)
-          1'b0:
-          begin:nodiff
+      1'b1: // Phase Alignment enabled
+      begin
+        case(MODE_CLKFB)
+          FCB0: // Automatic control On-Chip
+          begin:clkfb_0
+            assign CLKFB_OUT   = 1'b0;
             assign CLKFB_OUT_P = 1'b0;
             assign CLKFB_OUT_N = 1'b0;
             
-            IBUF clkfb_ibuf (.I (CLKFB_IN), .O (MMCM_CLKFB_IN));
-            ODDRE1 clkfbout_oddr (.Q (CLKFB_OUT), .C (MMCM_CLKFB_OUT), .D1 (1'b1), .D2 (1'b0), .SR (1'b0));
-          end
-          
-          1'b1:
-          begin:diff
-            assign CLKFB_OUT   = 1'b0;
-            logic ODDR_CLKFB_OUT;
+            BUFG clkf_buf (.I (MMCM_CLKFB_OUT), .O (MMCM_CLKFB_IN));
             
-            IBUFDS clkfb_ibufds (.I (CLKFB_IN_P), .IB (CLKFB_IN_N), .O (MMCM_CLKFB_IN));
-            ODDRE1 clkfb_oddr   (.Q (ODDR_CLKFB_OUT), .C (MMCM_CLKFB_OUT), .D1 (1'b1), .D2 (1'b0), .SR (1'b0));
-            OBUFDS clkfb_obufds (.I (ODDR_CLKFB_OUT), .O (CLKFB_OUT_P), .OB (CLKFB_OUT_N));
+            if(EN_CLKFB_DIFF == 1'b1) 
+              $warning("[CLKWIZ] ClockFeedback - EN_CLKFB_DIFF is not available in 'Automatic control On-Chip' mode");
           end
           
-          default: $error("[CLKWIZ] ClockFeedback - EN_CLKFB_DIFF has incorrect value");
+          FCB1: // Automatic control Off-Chip
+          begin:clkfb_1
+            case(EN_CLKFB_DIFF)
+              1'b0:
+              begin:nodiff
+                assign CLKFB_OUT_P = 1'b0;
+                assign CLKFB_OUT_N = 1'b0;
+                
+                IBUF clkfb_ibuf (.I (CLKFB_IN), .O (MMCM_CLKFB_IN));
+                ODDRE1 clkfbout_oddr (.Q (CLKFB_OUT), .C (MMCM_CLKFB_OUT), .D1 (1'b1), .D2 (1'b0), .SR (1'b0));
+              end
+              
+              1'b1:
+              begin:diff
+                assign CLKFB_OUT   = 1'b0;
+                logic ODDR_CLKFB_OUT;
+                
+                IBUFDS clkfb_ibufds (.I (CLKFB_IN_P), .IB (CLKFB_IN_N), .O (MMCM_CLKFB_IN));
+                ODDRE1 clkfb_oddr   (.Q (ODDR_CLKFB_OUT), .C (MMCM_CLKFB_OUT), .D1 (1'b1), .D2 (1'b0), .SR (1'b0));
+                OBUFDS clkfb_obufds (.I (ODDR_CLKFB_OUT), .O (CLKFB_OUT_P), .OB (CLKFB_OUT_N));
+              end
+              
+              default: $error("[CLKWIZ] ClockFeedback - EN_CLKFB_DIFF has incorrect value");
+            endcase
+          end
+          
+          FCB2: // User-controlled On-Chip
+          begin:clkfb_2
+            assign CLKFB_OUT   = MMCM_CLKFB_OUT;
+            assign CLKFB_OUT_P = 1'b0;
+            assign CLKFB_OUT_N = 1'b0;
+            assign MMCM_CLKFB_IN = CLKFB_IN;
+            
+            if(EN_CLKFB_DIFF == 1'b1) 
+              $warning("[CLKWIZ] ClockFeedback - EN_CLKFB_DIFF is not available in 'User-controlled On-Chip' mode");
+          end
+          
+          FCB3: // User-controlled Off-Chip
+          begin:clkfb_3
+            assign CLKFB_OUT   = MMCM_CLKFB_OUT;
+            assign CLKFB_OUT_P = 1'b0;
+            assign CLKFB_OUT_N = 1'b0;
+            assign MMCM_CLKFB_IN = CLKFB_IN;
+            
+            if(EN_CLKFB_DIFF == 1'b1) 
+              $warning("[CLKWIZ] ClockFeedback - EN_CLKFB_DIFF is not available in 'User-controlled Off-Chip' mode");
+          end
+          
+          default: $error("[CLKWIZ] ClockFeedback - MODE_CLKFB has incorrect value");
         endcase
       end
-      
-      FCB2: // User-controlled On-Chip
-      begin:clkfb_2
-        assign CLKFB_OUT   = MMCM_CLKFB_OUT;
-        assign CLKFB_OUT_P = 1'b0;
-        assign CLKFB_OUT_N = 1'b0;
-        assign MMCM_CLKFB_IN = CLKFB_IN;
-        
-        if(EN_CLKFB_DIFF == 1'b1) 
-          $warning("[CLKWIZ] ClockFeedback - EN_CLKFB_DIFF is not available in 'User-controlled On-Chip' mode");
-      end
-      
-      FCB3: // User-controlled Off-Chip
-      begin:clkfb_3
-        assign CLKFB_OUT   = MMCM_CLKFB_OUT;
-        assign CLKFB_OUT_P = 1'b0;
-        assign CLKFB_OUT_N = 1'b0;
-        assign MMCM_CLKFB_IN = CLKFB_IN;
-        
-        if(EN_CLKFB_DIFF == 1'b1) 
-          $warning("[CLKWIZ] ClockFeedback - EN_CLKFB_DIFF is not available in 'User-controlled Off-Chip' mode");
-      end
-      
-      default: $error("[CLKWIZ] ClockFeedback - MODE_CLKFB has incorrect value");
     endcase
   endgenerate
   
   //------------------------------------------------------------------------------------------
-  //  Reset generation
+  //  Optional I/O generation
   //------------------------------------------------------------------------------------------
+  logic MMCM_RESET    ;
+  logic MMCM_LOCKED   ;
+  logic MMCM_PWDOWN   ;
+  logic MMCM_CLKINSTOP;
+  logic MMCM_CLKFBSTOP;
   
+  generate
+    case(EN_RESET)
+      1'b0: assign MMCM_RESET = 1'b0;
+      1'b1: 
+      begin
+        case(POL_RESET)
+          1'b0: assign MMCM_RESET = RESET ;
+          1'b1: assign MMCM_RESET = RESETn;
+          default: $error("[CLKWIZ] Optional I/O - POL_RESET has incorrect value");
+        endcase
+      end
+      default: $error("[CLKWIZ] Optional I/O - EN_RESET has incorrect value");
+    endcase
+    
+    case(EN_LOCKED)
+      1'b0: assign LOCKED = 1'b0       ;
+      1'b1: assign LOCKED = MMCM_LOCKED;
+      default: $error("[CLKWIZ] Optional I/O - EN_LOCKED has incorrect value");
+    endcase
+    
+    case(EN_POWER_DOWN)
+      1'b0: assign MMCM_PWDOWN = 1'b0;
+      1'b1: assign MMCM_PWDOWN = POWER_DOWN;
+      default: $error("[CLKWIZ] Optional I/O - EN_POWER_DOWN has incorrect value");
+    endcase
+    
+    case(EN_STOPPED_CLKIN)
+      1'b0: assign STOPPED_CLKIN = 1'b0;
+      1'b1: assign STOPPED_CLKIN = MMCM_CLKINSTOP;
+      default: $error("[CLKWIZ] Optional I/O - EN_STOPPED_CLKIN has incorrect value");
+    endcase
+    
+    case(EN_STOPPED_CLKFB)
+      1'b0: assign STOPPED_CLKFB = 1'b0;
+      1'b1: assign STOPPED_CLKFB = MMCM_CLKFBSTOP;
+      default: $error("[CLKWIZ] Optional I/O - EN_STOPPED_CLKFB has incorrect value");
+    endcase
+  endgenerate
+  
+  //------------------------------------------------------------------------------------------
+  //  Dynamic Phase Shift generation
+  //------------------------------------------------------------------------------------------
+  logic MMCM_PSCLK    ;
+  logic MMCM_PSEN     ;
+  logic MMCM_PSINCDEC ;
+  logic MMCM_PSDONE   ;
+  
+  localparam FBOUT_FINE_PS = ((EN_SPREAD_SPECTR == 1'b1) && (EN_FINE_PS_FB     == 1'b1))? "TRUE" : "FALSE";
+  localparam COUT0_FINE_PS = ((EN_SPREAD_SPECTR == 1'b1) && (EN_FINE_PS_OUT[1] == 1'b1))? "TRUE" : "FALSE";
+  localparam COUT1_FINE_PS = ((EN_SPREAD_SPECTR == 1'b1) && (EN_FINE_PS_OUT[2] == 1'b1))? "TRUE" : "FALSE";
+  localparam COUT2_FINE_PS = ((EN_SPREAD_SPECTR == 1'b1) && (EN_FINE_PS_OUT[3] == 1'b1))? "TRUE" : "FALSE";
+  localparam COUT3_FINE_PS = ((EN_SPREAD_SPECTR == 1'b1) && (EN_FINE_PS_OUT[4] == 1'b1))? "TRUE" : "FALSE";
+  localparam COUT4_FINE_PS = ((EN_SPREAD_SPECTR == 1'b1) && (EN_FINE_PS_OUT[5] == 1'b1))? "TRUE" : "FALSE";
+  localparam COUT5_FINE_PS = ((EN_SPREAD_SPECTR == 1'b1) && (EN_FINE_PS_OUT[6] == 1'b1))? "TRUE" : "FALSE";
+  localparam COUT6_FINE_PS = ((EN_SPREAD_SPECTR == 1'b1) && (EN_FINE_PS_OUT[7] == 1'b1))? "TRUE" : "FALSE";
+  
+  generate
+    case(EN_DYNPHASESHIFT)
+      1'b0: assign PSDONE = 1'b0;
+      1'b1: 
+      begin
+        case(EN_SPREAD_SPECTR)
+          1'b0:
+          begin
+            assign MMCM_PSCLK    = PSCLK      ;
+            assign MMCM_PSEN     = PSEN       ;
+            assign MMCM_PSINCDEC = PSINCDEC   ;
+            assign PSDONE        = MMCM_PSDONE;
+          end
+          
+          1'b1:
+          begin
+            assign PSDONE = 1'b0;
+            $warning("[CLKWIZ] DynPhaseShift - EN_SPREAD_SPECTR = 1 is incompatible with EN_DYNPHASESHIFT = 1");
+          end
+          default: $error("[CLKWIZ] DynPhaseShift - EN_SPREAD_SPECTR has incorrect value");
+        endcase
+      end
+      default: $error("[CLKWIZ] DynPhaseShift - EN_DYNPHASESHIFT has incorrect value");
+    endcase
+  endgenerate
   
   //------------------------------------------------------------------------------------------
   //  MMCM generation
@@ -610,18 +801,18 @@ module prim_CLK_Wizard
         .CLKOUT5_PHASE        (0.0            ), // CLKOUT5_PHASE: Phase offset for CLKOUT outputs (-360.000 - 360.000).
         .CLKOUT6_PHASE        (0.0            ), // CLKOUT6_PHASE: Phase offset for CLKOUT outputs (-360.000 - 360.000).
         
-        .SS_EN                ("FALSE"        ), // Enables spread spectrum (FALSE, TRUE)
-        .SS_MODE              ("CENTER_HIGH"  ), // CENTER_HIGH, CENTER_LOW, DOWN_HIGH, DOWN_LOW
-        .SS_MOD_PERIOD        (10000          ), // Spread spectrum modulation period (ns) (VALUES)
+        .SS_EN                (SS_ENABLE      ), // Enables spread spectrum (FALSE, TRUE)
+        .SS_MODE              (SS_OPMODE      ), // CENTER_HIGH, CENTER_LOW, DOWN_HIGH, DOWN_LOW
+        .SS_MOD_PERIOD        (SS_MOD_PERIOD  ), // Spread spectrum modulation period (ns) (VALUES)
         
-        .CLKFBOUT_USE_FINE_PS ("FALSE"        ), // CLKFBOUT_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
-        .CLKOUT0_USE_FINE_PS  ("FALSE"        ), // CLKOUT0_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
-        .CLKOUT1_USE_FINE_PS  ("FALSE"        ), // CLKOUT1_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
-        .CLKOUT2_USE_FINE_PS  ("FALSE"        ), // CLKOUT2_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
-        .CLKOUT3_USE_FINE_PS  ("FALSE"        ), // CLKOUT3_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
-        .CLKOUT4_USE_FINE_PS  ("FALSE"        ), // CLKOUT4_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
-        .CLKOUT5_USE_FINE_PS  ("FALSE"        ), // CLKOUT5_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
-        .CLKOUT6_USE_FINE_PS  ("FALSE"        )  // CLKOUT6_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
+        .CLKFBOUT_USE_FINE_PS (FBOUT_FINE_PS  ), // CLKFBOUT_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
+        .CLKOUT0_USE_FINE_PS  (COUT0_FINE_PS  ), // CLKOUT0_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
+        .CLKOUT1_USE_FINE_PS  (COUT1_FINE_PS  ), // CLKOUT1_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
+        .CLKOUT2_USE_FINE_PS  (COUT2_FINE_PS  ), // CLKOUT2_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
+        .CLKOUT3_USE_FINE_PS  (COUT3_FINE_PS  ), // CLKOUT3_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
+        .CLKOUT4_USE_FINE_PS  (COUT4_FINE_PS  ), // CLKOUT4_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
+        .CLKOUT5_USE_FINE_PS  (COUT5_FINE_PS  ), // CLKOUT5_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
+        .CLKOUT6_USE_FINE_PS  (COUT6_FINE_PS  )  // CLKOUT6_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE)
       )
       SERIES7_MMCME2_ADV
       (
@@ -629,8 +820,8 @@ module prim_CLK_Wizard
         .CLKIN2       (MMCM_CLKIN_2         ), //  1-bit  input: Secondary clock
         .CLKINSEL     (MMCM_CLKIN_SEL       ), //  1-bit  input: Clock select, High = CLKIN1 Low = CLKIN2
         
-        .PWRDWN       (PWRDWN               ), //  1-bit  input: Power-down
-        .RST          (RST                  ), //  1-bit  input: Reset
+        .PWRDWN       (MMCM_PWDOWN          ), //  1-bit  input: Power-down
+        .RST          (MMCM_RESET           ), //  1-bit  input: Reset
         .LOCKED       (MMCM_LOCKED          ), //  1-bit output: LOCK
         
         .CLKOUT0      (MMCM_CLKOUT[1]       ), //  1-bit output: CLKOUT0
@@ -657,13 +848,13 @@ module prim_CLK_Wizard
         .DRDY         (DRDY                 ), //  1-bit output: DRP ready
         .DO           (DO                   ), // 16-bit output: DRP data
         
-        .PSCLK        (PSCLK                ), //  1-bit  input: Phase shift clock
-        .PSEN         (PSEN                 ), //  1-bit  input: Phase shift enable
-        .PSINCDEC     (PSINCDEC             ), //  1-bit  input: Phase shift increment/decrement
-        .PSDONE       (PSDONE               ), //  1-bit output: Phase shift done
+        .PSCLK        (MMCM_PSCLK           ), //  1-bit  input: Phase shift clock
+        .PSEN         (MMCM_PSEN            ), //  1-bit  input: Phase shift enable
+        .PSINCDEC     (MMCM_PSINCDEC        ), //  1-bit  input: Phase shift increment/decrement
+        .PSDONE       (MMCM_PSDONE          ), //  1-bit output: Phase shift done
         
-        .CLKFBSTOPPED (CLKFBSTOPPED         ), //  1-bit output: Feedback clock stopped
-        .CLKINSTOPPED (CLKINSTOPPED         )  //  1-bit output: Input clock stopped
+        .CLKFBSTOPPED (MMCM_CLKFBSTOP       ), //  1-bit output: Feedback clock stopped
+        .CLKINSTOPPED (MMCM_CLKINSTOP       )  //  1-bit output: Input clock stopped
       );
     end
     else if(FPGA_FAMILY == "ULTRASCALE")
@@ -708,18 +899,18 @@ module prim_CLK_Wizard
         .CLKOUT5_PHASE          (0.0            ), // CLKOUT5_PHASE: Phase offset for CLKOUT outputs (-360.000-360.000). 
         .CLKOUT6_PHASE          (0.0            ), // CLKOUT6_PHASE: Phase offset for CLKOUT outputs (-360.000-360.000). 
         
-        .SS_EN                  ("FALSE"        ), // Enables spread spectrum (FALSE, TRUE)
-        .SS_MODE                ("CENTER_HIGH"  ), // CENTER_HIGH, CENTER_LOW, DOWN_HIGH, DOWN_LOW 
-        .SS_MOD_PERIOD          (10000          ), // Spread spectrum modulation period (ns) (4000-40000)
+        .SS_EN                  (SS_ENABLE      ), // Enables spread spectrum (FALSE, TRUE)
+        .SS_MODE                (SS_OPMODE      ), // CENTER_HIGH, CENTER_LOW, DOWN_HIGH, DOWN_LOW 
+        .SS_MOD_PERIOD          (SS_MOD_PERIOD  ), // Spread spectrum modulation period (ns) (4000-40000)
         
-        .CLKFBOUT_USE_FINE_PS   ("FALSE"        ), // CLKFBOUT_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE) 
-        .CLKOUT0_USE_FINE_PS    ("FALSE"        ), // CLKOUT0_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
-        .CLKOUT1_USE_FINE_PS    ("FALSE"        ), // CLKOUT1_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
-        .CLKOUT2_USE_FINE_PS    ("FALSE"        ), // CLKOUT2_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
-        .CLKOUT3_USE_FINE_PS    ("FALSE"        ), // CLKOUT3_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
-        .CLKOUT4_USE_FINE_PS    ("FALSE"        ), // CLKOUT4_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
-        .CLKOUT5_USE_FINE_PS    ("FALSE"        ), // CLKOUT5_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
-        .CLKOUT6_USE_FINE_PS    ("FALSE"        ), // CLKOUT6_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
+        .CLKFBOUT_USE_FINE_PS   (FBOUT_FINE_PS  ), // CLKFBOUT_USE_FINE_PS: Fine phase shift enable (TRUE/FALSE) 
+        .CLKOUT0_USE_FINE_PS    (COUT0_FINE_PS  ), // CLKOUT0_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
+        .CLKOUT1_USE_FINE_PS    (COUT1_FINE_PS  ), // CLKOUT1_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
+        .CLKOUT2_USE_FINE_PS    (COUT2_FINE_PS  ), // CLKOUT2_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
+        .CLKOUT3_USE_FINE_PS    (COUT3_FINE_PS  ), // CLKOUT3_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
+        .CLKOUT4_USE_FINE_PS    (COUT4_FINE_PS  ), // CLKOUT4_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
+        .CLKOUT5_USE_FINE_PS    (COUT5_FINE_PS  ), // CLKOUT5_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
+        .CLKOUT6_USE_FINE_PS    (COUT6_FINE_PS  ), // CLKOUT6_USE_FINE_PS : Fine phase shift enable (TRUE/FALSE) 
         
         .IS_CLKFBIN_INVERTED    (1'b0           ), // Optional inversion for CLKFBIN 
         .IS_CLKIN1_INVERTED     (1'b0           ), // Optional inversion for CLKIN1 
@@ -736,8 +927,8 @@ module prim_CLK_Wizard
         .CLKIN2       (MMCM_CLKIN_2     ), //  1-bit  input: Secondary clock 
         .CLKINSEL     (MMCM_CLKIN_SEL   ), //  1-bit  input: Clock select, High=CLKIN1 Low=CLKIN2 
         
-        .PWRDWN       (PWRDWN           ), //  1-bit  input: Power-down 
-        .RST          (RST              ), //  1-bit  input: Reset
+        .PWRDWN       (MMCM_PWDOWN      ), //  1-bit  input: Power-down 
+        .RST          (MMCM_RESET       ), //  1-bit  input: Reset
         .LOCKED       (MMCM_LOCKED      ), //  1-bit output: LOCK 
         
         .CLKOUT0      (MMCM_CLKOUT[1]   ), //  1-bit output: CLKOUT0 
@@ -764,13 +955,13 @@ module prim_CLK_Wizard
         .DRDY         (DRDY             ), //  1-bit output: DRP ready
         .DO           (DO               ), // 16-bit output: DRP data 
         
-        .PSCLK        (PSCLK            ), //  1-bit  input: Phase shift clock 
-        .PSEN         (PSEN             ), //  1-bit  input: Phase shift enable 
-        .PSINCDEC     (PSINCDEC         ), //  1-bit  input: Phase shift increment/decrement
-        .PSDONE       (PSDONE           ), //  1-bit output: Phase shift done
+        .PSCLK        (MMCM_PSCLK       ), //  1-bit  input: Phase shift clock 
+        .PSEN         (MMCM_PSEN        ), //  1-bit  input: Phase shift enable 
+        .PSINCDEC     (MMCM_PSINCDEC    ), //  1-bit  input: Phase shift increment/decrement
+        .PSDONE       (MMCM_PSDONE      ), //  1-bit output: Phase shift done
         
-        .CLKFBSTOPPED (CLKFBSTOPPED     ), //  1-bit output: Feedback clock stopped 
-        .CLKINSTOPPED (CLKINSTOPPED     ), //  1-bit output: Input clock stopped 
+        .CLKFBSTOPPED (MMCM_CLKFBSTOP   ), //  1-bit output: Feedback clock stopped 
+        .CLKINSTOPPED (MMCM_CLKINSTOP   ), //  1-bit output: Input clock stopped 
         
         .CDDCREQ      (CDDCREQ          ), //  1-bit  input: Request to dynamic divide clock
         .CDDCDONE     (CDDCDONE         )  //  1-bit output: Clock dynamic divide done 
@@ -818,18 +1009,18 @@ module prim_CLK_Wizard
         .CLKOUT5_PHASE        (0.0            ), // Phase offset for CLKOUT outputs (-360.000-360.000).
         .CLKOUT6_PHASE        (0.0            ), // Phase offset for CLKOUT outputs (-360.000-360.000). 
         
-        .SS_EN                ("FALSE"        ), // Enables spread spectrum 
-        .SS_MODE              ("CENTER_HIGH"  ), // Spread spectrum frequency deviation and the spread type 
-        .SS_MOD_PERIOD        (10000          ), // Spread spectrum modulation period (ns) 
+        .SS_EN                (SS_ENABLE      ), // Enables spread spectrum 
+        .SS_MODE              (SS_OPMODE      ), // Spread spectrum frequency deviation and the spread type 
+        .SS_MOD_PERIOD        (SS_MOD_PERIOD  ), // Spread spectrum modulation period (ns) 
         
-        .CLKFBOUT_USE_FINE_PS ("FALSE"        ), // Fine phase shift enable (TRUE/FALSE)   
-        .CLKOUT0_USE_FINE_PS  ("FALSE"        ), // Fine phase shift enable (TRUE/FALSE) 
-        .CLKOUT1_USE_FINE_PS  ("FALSE"        ), // Fine phase shift enable (TRUE/FALSE) 
-        .CLKOUT2_USE_FINE_PS  ("FALSE"        ), // Fine phase shift enable (TRUE/FALSE) 
-        .CLKOUT3_USE_FINE_PS  ("FALSE"        ), // Fine phase shift enable (TRUE/FALSE) 
-        .CLKOUT4_USE_FINE_PS  ("FALSE"        ), // Fine phase shift enable (TRUE/FALSE) 
-        .CLKOUT5_USE_FINE_PS  ("FALSE"        ), // Fine phase shift enable (TRUE/FALSE) 
-        .CLKOUT6_USE_FINE_PS  ("FALSE"        ), // Fine phase shift enable (TRUE/FALSE) 
+        .CLKFBOUT_USE_FINE_PS (FBOUT_FINE_PS  ), // Fine phase shift enable (TRUE/FALSE)   
+        .CLKOUT0_USE_FINE_PS  (COUT0_FINE_PS  ), // Fine phase shift enable (TRUE/FALSE) 
+        .CLKOUT1_USE_FINE_PS  (COUT1_FINE_PS  ), // Fine phase shift enable (TRUE/FALSE) 
+        .CLKOUT2_USE_FINE_PS  (COUT2_FINE_PS  ), // Fine phase shift enable (TRUE/FALSE) 
+        .CLKOUT3_USE_FINE_PS  (COUT3_FINE_PS  ), // Fine phase shift enable (TRUE/FALSE) 
+        .CLKOUT4_USE_FINE_PS  (COUT4_FINE_PS  ), // Fine phase shift enable (TRUE/FALSE) 
+        .CLKOUT5_USE_FINE_PS  (COUT5_FINE_PS  ), // Fine phase shift enable (TRUE/FALSE) 
+        .CLKOUT6_USE_FINE_PS  (COUT6_FINE_PS  ), // Fine phase shift enable (TRUE/FALSE) 
         
         .IS_CLKFBIN_INVERTED  (1'b0           ), // Optional inversion for CLKFBIN 
         .IS_CLKIN1_INVERTED   (1'b0           ), // Optional inversion for CLKIN1 
@@ -846,8 +1037,8 @@ module prim_CLK_Wizard
         .CLKIN2       (MMCM_CLKIN_2     ), //  1-bit  input: Secondary clock 
         .CLKINSEL     (MMCM_CLKIN_SEL   ), //  1-bit  input: Clock select, High=CLKIN1 Low=CLKIN2 
         
-        .PWRDWN       (PWRDWN           ), //  1-bit  input: Power-down   
-        .RST          (RST              ), //  1-bit  input: Reset
+        .PWRDWN       (MMCM_PWDOWN      ), //  1-bit  input: Power-down   
+        .RST          (MMCM_RESET       ), //  1-bit  input: Reset
         .LOCKED       (MMCM_LOCKED      ), //  1-bit output: LOCK 
         
         .CLKOUT0      (MMCM_CLKOUT[1]   ), //  1-bit output: CLKOUT0 
@@ -874,13 +1065,13 @@ module prim_CLK_Wizard
         .DRDY         (DRDY             ), //  1-bit output: DRP ready 
         .DO           (DO               ), // 16-bit output: DRP data output 
         
-        .PSCLK        (PSCLK            ), //  1-bit  input: Phase shift clock 
-        .PSEN         (PSEN             ), //  1-bit  input: Phase shift enable 
-        .PSINCDEC     (PSINCDEC         ), //  1-bit  input: Phase shift increment/decrement 
-        .PSDONE       (PSDONE           ), //  1-bit output: Phase shift done 
+        .PSCLK        (MMCM_PSCLK       ), //  1-bit  input: Phase shift clock 
+        .PSEN         (MMCM_PSEN        ), //  1-bit  input: Phase shift enable 
+        .PSINCDEC     (MMCM_PSINCDEC    ), //  1-bit  input: Phase shift increment/decrement 
+        .PSDONE       (MMCM_PSDONE      ), //  1-bit output: Phase shift done 
         
-        .CLKFBSTOPPED (CLKFBSTOPPED     ), //  1-bit output: Feedback clock stopped 
-        .CLKINSTOPPED (CLKINSTOPPED     ), //  1-bit output: Input clock stopped 
+        .CLKFBSTOPPED (MMCM_CLKFBSTOP   ), //  1-bit output: Feedback clock stopped 
+        .CLKINSTOPPED (MMCM_CLKINSTOP   ), //  1-bit output: Input clock stopped 
         
         .CDDCREQ      (CDDCREQ          ), //  1-bit  input: Request to dynamic divide clock 
         .CDDCDONE     (CDDCDONE         )  //  1-bit output: Clock dynamic divide done 

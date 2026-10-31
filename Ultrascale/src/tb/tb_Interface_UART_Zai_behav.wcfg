@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_Interface_UART_Zai_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_Interface_UART_Zai" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="3,886.083333 us"></ZoomStartTime>
+      <ZoomEndTime time="4,023.983334 us"></ZoomEndTime>
+      <Cursor1Time time="4,001.000000 us"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="276"></NameColumnWidth>
+      <ValueColumnWidth column_width="107"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="3" />
+   <wvobject fp_name="group87" type="group">
+      <obj_property name="label">TB</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_CLK_i" type="logic">
+         <obj_property name="ElementShortName">TB_CLK_i</obj_property>
+         <obj_property name="ObjectShortName">TB_CLK_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_RST_i" type="logic">
+         <obj_property name="ElementShortName">TB_RST_i</obj_property>
+         <obj_property name="ObjectShortName">TB_RST_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_Data_i" type="array">
+         <obj_property name="ElementShortName">TB_Data_i[7:0]</obj_property>
+         <obj_property name="ObjectShortName">TB_Data_i[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_Data_o" type="array">
+         <obj_property name="ElementShortName">TB_Data_o[7:0]</obj_property>
+         <obj_property name="ObjectShortName">TB_Data_o[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_DataValid_i" type="logic">
+         <obj_property name="ElementShortName">TB_DataValid_i</obj_property>
+         <obj_property name="ObjectShortName">TB_DataValid_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_DataValid_o" type="logic">
+         <obj_property name="ElementShortName">TB_DataValid_o</obj_property>
+         <obj_property name="ObjectShortName">TB_DataValid_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_BaudSel_i" type="array">
+         <obj_property name="ElementShortName">TB_BaudSel_i[4:0]</obj_property>
+         <obj_property name="ObjectShortName">TB_BaudSel_i[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_DataBits_i" type="array">
+         <obj_property name="ElementShortName">TB_DataBits_i[3:0]</obj_property>
+         <obj_property name="ObjectShortName">TB_DataBits_i[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_ParityType_i" type="array">
+         <obj_property name="ElementShortName">TB_ParityType_i[2:0]</obj_property>
+         <obj_property name="ObjectShortName">TB_ParityType_i[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_StopBits_i" type="array">
+         <obj_property name="ElementShortName">TB_StopBits_i[1:0]</obj_property>
+         <obj_property name="ObjectShortName">TB_StopBits_i[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_RX_Active_o" type="logic">
+         <obj_property name="ElementShortName">TB_RX_Active_o</obj_property>
+         <obj_property name="ObjectShortName">TB_RX_Active_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_ParityError_o" type="logic">
+         <obj_property name="ElementShortName">TB_ParityError_o</obj_property>
+         <obj_property name="ObjectShortName">TB_ParityError_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_FrameError_o" type="logic">
+         <obj_property name="ElementShortName">TB_FrameError_o</obj_property>
+         <obj_property name="ObjectShortName">TB_FrameError_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_TX_Active_o" type="logic">
+         <obj_property name="ElementShortName">TB_TX_Active_o</obj_property>
+         <obj_property name="ObjectShortName">TB_TX_Active_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_BuffFull_o" type="logic">
+         <obj_property name="ElementShortName">TB_BuffFull_o</obj_property>
+         <obj_property name="ObjectShortName">TB_BuffFull_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_RE_o" type="logic">
+         <obj_property name="ElementShortName">TB_RE_o</obj_property>
+         <obj_property name="ObjectShortName">TB_RE_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_DE_o" type="logic">
+         <obj_property name="ElementShortName">TB_DE_o</obj_property>
+         <obj_property name="ObjectShortName">TB_DE_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_TX_o" type="logic">
+         <obj_property name="ElementShortName">TB_TX_o</obj_property>
+         <obj_property name="ObjectShortName">TB_TX_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/rx_gen" type="logic">
+         <obj_property name="ElementShortName">rx_gen</obj_property>
+         <obj_property name="ObjectShortName">rx_gen</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/lb_en" type="logic">
+         <obj_property name="ElementShortName">lb_en</obj_property>
+         <obj_property name="ObjectShortName">lb_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/TB_RX_i" type="logic">
+         <obj_property name="ElementShortName">TB_RX_i</obj_property>
+         <obj_property name="ObjectShortName">TB_RX_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/n_pass" type="array">
+         <obj_property name="ElementShortName">n_pass[31:0]</obj_property>
+         <obj_property name="ObjectShortName">n_pass[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/n_fail" type="array">
+         <obj_property name="ElementShortName">n_fail[31:0]</obj_property>
+         <obj_property name="ObjectShortName">n_fail[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/n_warn" type="array">
+         <obj_property name="ElementShortName">n_warn[31:0]</obj_property>
+         <obj_property name="ObjectShortName">n_warn[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/prng" type="array">
+         <obj_property name="ElementShortName">prng[31:0]</obj_property>
+         <obj_property name="ObjectShortName">prng[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/w_i" type="array">
+         <obj_property name="ElementShortName">w_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">w_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/p_i" type="array">
+         <obj_property name="ElementShortName">p_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">p_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/s_i" type="array">
+         <obj_property name="ElementShortName">s_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">s_i[31:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group130" type="group">
+      <obj_property name="label">TX</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/RST_i" type="logic">
+         <obj_property name="ElementShortName">RST_i</obj_property>
+         <obj_property name="ObjectShortName">RST_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/CLK_i" type="logic">
+         <obj_property name="ElementShortName">CLK_i</obj_property>
+         <obj_property name="ObjectShortName">CLK_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/TX_o" type="logic">
+         <obj_property name="ElementShortName">TX_o</obj_property>
+         <obj_property name="ObjectShortName">TX_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/TickPulse_i" type="logic">
+         <obj_property name="ElementShortName">TickPulse_i</obj_property>
+         <obj_property name="ObjectShortName">TickPulse_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/Resync_o" type="logic">
+         <obj_property name="ElementShortName">Resync_o</obj_property>
+         <obj_property name="ObjectShortName">Resync_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/DataBits_i" type="array">
+         <obj_property name="ElementShortName">DataBits_i[3:0]</obj_property>
+         <obj_property name="ObjectShortName">DataBits_i[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/ParityType_i" type="array">
+         <obj_property name="ElementShortName">ParityType_i[2:0]</obj_property>
+         <obj_property name="ObjectShortName">ParityType_i[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/StopBits_i" type="array">
+         <obj_property name="ElementShortName">StopBits_i[1:0]</obj_property>
+         <obj_property name="ObjectShortName">StopBits_i[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/Inhibit_i" type="logic">
+         <obj_property name="ElementShortName">Inhibit_i</obj_property>
+         <obj_property name="ObjectShortName">Inhibit_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/Active_o" type="logic">
+         <obj_property name="ElementShortName">Active_o</obj_property>
+         <obj_property name="ObjectShortName">Active_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/BuffFull_o" type="logic">
+         <obj_property name="ElementShortName">BuffFull_o</obj_property>
+         <obj_property name="ObjectShortName">BuffFull_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/DataValid_i" type="logic">
+         <obj_property name="ElementShortName">DataValid_i</obj_property>
+         <obj_property name="ObjectShortName">DataValid_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/Data_i" type="array">
+         <obj_property name="ElementShortName">Data_i[7:0]</obj_property>
+         <obj_property name="ObjectShortName">Data_i[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/TickCounter" type="array">
+         <obj_property name="ElementShortName">TickCounter[3:0]</obj_property>
+         <obj_property name="ObjectShortName">TickCounter[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/SampFirst" type="logic">
+         <obj_property name="ElementShortName">SampFirst</obj_property>
+         <obj_property name="ObjectShortName">SampFirst</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/BitValueValid" type="logic">
+         <obj_property name="ElementShortName">BitValueValid</obj_property>
+         <obj_property name="ObjectShortName">BitValueValid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/SM" type="array">
+         <obj_property name="ElementShortName">SM[2:0]</obj_property>
+         <obj_property name="ObjectShortName">SM[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/Proceed_EN" type="logic">
+         <obj_property name="ElementShortName">Proceed_EN</obj_property>
+         <obj_property name="ObjectShortName">Proceed_EN</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/BitCount" type="array">
+         <obj_property name="ElementShortName">BitCount[3:0]</obj_property>
+         <obj_property name="ObjectShortName">BitCount[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/BitValue" type="logic">
+         <obj_property name="ElementShortName">BitValue</obj_property>
+         <obj_property name="ObjectShortName">BitValue</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/BitDone" type="logic">
+         <obj_property name="ElementShortName">BitDone</obj_property>
+         <obj_property name="ObjectShortName">BitDone</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/ParityAcc" type="logic">
+         <obj_property name="ElementShortName">ParityAcc</obj_property>
+         <obj_property name="ObjectShortName">ParityAcc</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/ParityType" type="array">
+         <obj_property name="ElementShortName">ParityType[2:0]</obj_property>
+         <obj_property name="ObjectShortName">ParityType[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/StopDone" type="logic">
+         <obj_property name="ElementShortName">StopDone</obj_property>
+         <obj_property name="ObjectShortName">StopDone</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/StopCount" type="array">
+         <obj_property name="ElementShortName">StopCount[1:0]</obj_property>
+         <obj_property name="ObjectShortName">StopCount[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/BuffDone" type="logic">
+         <obj_property name="ElementShortName">BuffDone</obj_property>
+         <obj_property name="ObjectShortName">BuffDone</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/BuffReady" type="logic">
+         <obj_property name="ElementShortName">BuffReady</obj_property>
+         <obj_property name="ObjectShortName">BuffReady</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/BuffReset" type="logic">
+         <obj_property name="ElementShortName">BuffReset</obj_property>
+         <obj_property name="ObjectShortName">BuffReset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/BuffData" type="array">
+         <obj_property name="ElementShortName">BuffData[7:0]</obj_property>
+         <obj_property name="ObjectShortName">BuffData[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/Buff" type="array">
+         <obj_property name="ElementShortName">Buff</obj_property>
+         <obj_property name="ObjectShortName">Buff</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/Trsm" type="array">
+         <obj_property name="ElementShortName">Trsm</obj_property>
+         <obj_property name="ObjectShortName">Trsm</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/Trsm_Shift/Q" type="array">
+         <obj_property name="ElementShortName">Q[7:0]</obj_property>
+         <obj_property name="ObjectShortName">Q[7:0]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/\genblk1.BuffEnable " type="logic">
+         <obj_property name="ElementShortName">\genblk1.BuffEnable </obj_property>
+         <obj_property name="ObjectShortName">\genblk1.BuffEnable </obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/\genblk1.BuffCount " type="array">
+         <obj_property name="ElementShortName">\genblk1.BuffCount [3:0]</obj_property>
+         <obj_property name="ObjectShortName">\genblk1.BuffCount [3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/OVERSAMPL" type="array">
+         <obj_property name="ElementShortName">OVERSAMPL[31:0]</obj_property>
+         <obj_property name="ObjectShortName">OVERSAMPL[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/MODE_VAR_WORD" type="logic">
+         <obj_property name="ElementShortName">MODE_VAR_WORD</obj_property>
+         <obj_property name="ObjectShortName">MODE_VAR_WORD</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/MAX_DW" type="array">
+         <obj_property name="ElementShortName">MAX_DW[31:0]</obj_property>
+         <obj_property name="ObjectShortName">MAX_DW[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/MODE_MSB" type="logic">
+         <obj_property name="ElementShortName">MODE_MSB</obj_property>
+         <obj_property name="ObjectShortName">MODE_MSB</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/MODE_VAR_PAR" type="logic">
+         <obj_property name="ElementShortName">MODE_VAR_PAR</obj_property>
+         <obj_property name="ObjectShortName">MODE_VAR_PAR</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/MODE_TYP_PAR" type="array">
+         <obj_property name="ElementShortName">MODE_TYP_PAR[31:0]</obj_property>
+         <obj_property name="ObjectShortName">MODE_TYP_PAR[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/MODE_VAR_STP" type="logic">
+         <obj_property name="ElementShortName">MODE_VAR_STP</obj_property>
+         <obj_property name="ObjectShortName">MODE_VAR_STP</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/MODE_TYP_STP" type="array">
+         <obj_property name="ElementShortName">MODE_TYP_STP[31:0]</obj_property>
+         <obj_property name="ObjectShortName">MODE_TYP_STP[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/SAMP_W" type="array">
+         <obj_property name="ElementShortName">SAMP_W[31:0]</obj_property>
+         <obj_property name="ObjectShortName">SAMP_W[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/TX/FILT_NULL" type="array">
+         <obj_property name="ElementShortName">FILT_NULL[31:0]</obj_property>
+         <obj_property name="ObjectShortName">FILT_NULL[31:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group224" type="group">
+      <obj_property name="label">RX</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/RST_i" type="logic">
+         <obj_property name="ElementShortName">RST_i</obj_property>
+         <obj_property name="ObjectShortName">RST_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/CLK_i" type="logic">
+         <obj_property name="ElementShortName">CLK_i</obj_property>
+         <obj_property name="ObjectShortName">CLK_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/RX_i" type="logic">
+         <obj_property name="ElementShortName">RX_i</obj_property>
+         <obj_property name="ObjectShortName">RX_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/TickPulse_i" type="logic">
+         <obj_property name="ElementShortName">TickPulse_i</obj_property>
+         <obj_property name="ObjectShortName">TickPulse_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/Resync_o" type="logic">
+         <obj_property name="ElementShortName">Resync_o</obj_property>
+         <obj_property name="ObjectShortName">Resync_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/DataBits_i" type="array">
+         <obj_property name="ElementShortName">DataBits_i[3:0]</obj_property>
+         <obj_property name="ObjectShortName">DataBits_i[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/ParityType_i" type="array">
+         <obj_property name="ElementShortName">ParityType_i[2:0]</obj_property>
+         <obj_property name="ObjectShortName">ParityType_i[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/StopBits_i" type="array">
+         <obj_property name="ElementShortName">StopBits_i[1:0]</obj_property>
+         <obj_property name="ObjectShortName">StopBits_i[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/Inhibit_i" type="logic">
+         <obj_property name="ElementShortName">Inhibit_i</obj_property>
+         <obj_property name="ObjectShortName">Inhibit_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/Active_o" type="logic">
+         <obj_property name="ElementShortName">Active_o</obj_property>
+         <obj_property name="ObjectShortName">Active_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/ParityError_o" type="logic">
+         <obj_property name="ElementShortName">ParityError_o</obj_property>
+         <obj_property name="ObjectShortName">ParityError_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/FrameError_o" type="logic">
+         <obj_property name="ElementShortName">FrameError_o</obj_property>
+         <obj_property name="ObjectShortName">FrameError_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/DataValid_o" type="logic">
+         <obj_property name="ElementShortName">DataValid_o</obj_property>
+         <obj_property name="ObjectShortName">DataValid_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/Data_o" type="array">
+         <obj_property name="ElementShortName">Data_o[7:0]</obj_property>
+         <obj_property name="ObjectShortName">Data_o[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/TickCounter" type="array">
+         <obj_property name="ElementShortName">TickCounter[3:0]</obj_property>
+         <obj_property name="ObjectShortName">TickCounter[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/SampFilt" type="array">
+         <obj_property name="ElementShortName">SampFilt[4:0]</obj_property>
+         <obj_property name="ObjectShortName">SampFilt[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/SampActive" type="logic">
+         <obj_property name="ElementShortName">SampActive</obj_property>
+         <obj_property name="ObjectShortName">SampActive</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/SampLast" type="logic">
+         <obj_property name="ElementShortName">SampLast</obj_property>
+         <obj_property name="ObjectShortName">SampLast</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/BitValueValid" type="logic">
+         <obj_property name="ElementShortName">BitValueValid</obj_property>
+         <obj_property name="ObjectShortName">BitValueValid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/BitValue" type="logic">
+         <obj_property name="ElementShortName">BitValue</obj_property>
+         <obj_property name="ObjectShortName">BitValue</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/Pipeline_RX" type="array">
+         <obj_property name="ElementShortName">Pipeline_RX[2:0]</obj_property>
+         <obj_property name="ObjectShortName">Pipeline_RX[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/PacketStart" type="logic">
+         <obj_property name="ElementShortName">PacketStart</obj_property>
+         <obj_property name="ObjectShortName">PacketStart</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/SM" type="array">
+         <obj_property name="ElementShortName">SM[2:0]</obj_property>
+         <obj_property name="ObjectShortName">SM[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/BitCount" type="array">
+         <obj_property name="ElementShortName">BitCount[3:0]</obj_property>
+         <obj_property name="ObjectShortName">BitCount[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/BitDone" type="logic">
+         <obj_property name="ElementShortName">BitDone</obj_property>
+         <obj_property name="ObjectShortName">BitDone</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/ParityAcc" type="logic">
+         <obj_property name="ElementShortName">ParityAcc</obj_property>
+         <obj_property name="ObjectShortName">ParityAcc</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/ParityType" type="array">
+         <obj_property name="ElementShortName">ParityType[2:0]</obj_property>
+         <obj_property name="ObjectShortName">ParityType[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/StopDone" type="logic">
+         <obj_property name="ElementShortName">StopDone</obj_property>
+         <obj_property name="ObjectShortName">StopDone</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/StopCount" type="array">
+         <obj_property name="ElementShortName">StopCount[1:0]</obj_property>
+         <obj_property name="ObjectShortName">StopCount[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/RecvData" type="array">
+         <obj_property name="ElementShortName">RecvData[7:0]</obj_property>
+         <obj_property name="ObjectShortName">RecvData[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/Recv" type="array">
+         <obj_property name="ElementShortName">Recv</obj_property>
+         <obj_property name="ObjectShortName">Recv</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/\genblk1.ShiftEnable " type="logic">
+         <obj_property name="ElementShortName">\genblk1.ShiftEnable </obj_property>
+         <obj_property name="ObjectShortName">\genblk1.ShiftEnable </obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/\genblk1.ShiftDone " type="logic">
+         <obj_property name="ElementShortName">\genblk1.ShiftDone </obj_property>
+         <obj_property name="ObjectShortName">\genblk1.ShiftDone </obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/\genblk1.ShiftCount " type="array">
+         <obj_property name="ElementShortName">\genblk1.ShiftCount [3:0]</obj_property>
+         <obj_property name="ObjectShortName">\genblk1.ShiftCount [3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/\genblk1.ShiftData " type="array">
+         <obj_property name="ElementShortName">\genblk1.ShiftData [7:0]</obj_property>
+         <obj_property name="ObjectShortName">\genblk1.ShiftData [7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/\genblk1.Shift " type="array">
+         <obj_property name="ElementShortName">\genblk1.Shift </obj_property>
+         <obj_property name="ObjectShortName">\genblk1.Shift </obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/OVERSAMPL" type="array">
+         <obj_property name="ElementShortName">OVERSAMPL[31:0]</obj_property>
+         <obj_property name="ObjectShortName">OVERSAMPL[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/MODE_VAR_WORD" type="logic">
+         <obj_property name="ElementShortName">MODE_VAR_WORD</obj_property>
+         <obj_property name="ObjectShortName">MODE_VAR_WORD</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/MAX_DW" type="array">
+         <obj_property name="ElementShortName">MAX_DW[31:0]</obj_property>
+         <obj_property name="ObjectShortName">MAX_DW[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/MODE_MSB" type="logic">
+         <obj_property name="ElementShortName">MODE_MSB</obj_property>
+         <obj_property name="ObjectShortName">MODE_MSB</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/MODE_VAR_PAR" type="logic">
+         <obj_property name="ElementShortName">MODE_VAR_PAR</obj_property>
+         <obj_property name="ObjectShortName">MODE_VAR_PAR</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/MODE_TYP_PAR" type="array">
+         <obj_property name="ElementShortName">MODE_TYP_PAR[31:0]</obj_property>
+         <obj_property name="ObjectShortName">MODE_TYP_PAR[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/MODE_VAR_STP" type="logic">
+         <obj_property name="ElementShortName">MODE_VAR_STP</obj_property>
+         <obj_property name="ObjectShortName">MODE_VAR_STP</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/MODE_TYP_STP" type="array">
+         <obj_property name="ElementShortName">MODE_TYP_STP[31:0]</obj_property>
+         <obj_property name="ObjectShortName">MODE_TYP_STP[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/SAMP_W" type="array">
+         <obj_property name="ElementShortName">SAMP_W[31:0]</obj_property>
+         <obj_property name="ObjectShortName">SAMP_W[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/FILT_W" type="array">
+         <obj_property name="ElementShortName">FILT_W[31:0]</obj_property>
+         <obj_property name="ObjectShortName">FILT_W[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/FILT_LL" type="array">
+         <obj_property name="ElementShortName">FILT_LL[31:0]</obj_property>
+         <obj_property name="ObjectShortName">FILT_LL[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_Interface_UART_Zai/UUT/RX/FILT_UL" type="array">
+         <obj_property name="ElementShortName">FILT_UL[31:0]</obj_property>
+         <obj_property name="ObjectShortName">FILT_UL[31:0]</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>

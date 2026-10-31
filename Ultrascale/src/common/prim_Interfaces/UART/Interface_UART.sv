@@ -95,7 +95,7 @@ module Interface_UART
         .MODE_FIXED  (MODE_BAUDCTRL  ), // Generation mode:'1' - fixed tick rate, '0' - variable tick rate
         .TICKR_FIXED (BAUD_UART_DEF  ), // Target tickrate (used in fixed mode)
         .OVERSAMPLE  (OVERSAMPLE_N   ), // Oversampling mode (ticks per bit)
-        .LOGIC_DELAY (2              )  // 
+        .LOGIC_DELAY (0              )  // 
       )
       TickGen_RX
       (
@@ -112,7 +112,7 @@ module Interface_UART
         .MODE_FIXED  (MODE_BAUDCTRL  ), // Generation mode:'1' - fixed tick rate, '0' - variable tick rate
         .TICKR_FIXED (BAUD_UART_DEF  ), // Target tickrate (used in fixed mode)
         .OVERSAMPLE  (OVERSAMPLE_N   ), // Oversampling mode (ticks per bit)
-        .LOGIC_DELAY (2              )  // 
+        .LOGIC_DELAY (0              )  // 
       )
       TickGen_TX
       (

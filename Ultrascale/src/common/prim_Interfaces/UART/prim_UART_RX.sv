@@ -100,7 +100,7 @@ module prim_UART_RX
   
   always_comb
   begin
-    SampActive  = TickPulse_i & (TickCounter >= FILT_LL) || (TickCounter <= FILT_UL);
+    SampActive  = TickPulse_i & ((TickCounter >= FILT_LL) & (TickCounter <= FILT_UL));
     SampLast    = TickPulse_i & (TickCounter == FILT_UL);
     PacketStart = Pipeline_RX[1] ^ Pipeline_RX[0];
   end
@@ -115,7 +115,7 @@ module prim_UART_RX
   
   always_ff @(posedge CLK_i)
   begin:bitsamp_proc
-    if(RST_i)
+    if(RST_i || ~Active_o)
     begin
       TickCounter   <= '{default:0};
       SampFilt      <= '{default:0};
@@ -395,5 +395,29 @@ module prim_UART_RX
       end
     end
   endgenerate
+  
+  ILA_UART_RX ILA_RX
+  (
+    .clk     (CLK_i         ),
+    .probe0  (RX_i          ),
+    .probe1  (TickPulse_i   ),
+    .probe2  (PacketStart   ),
+    .probe3  (SampActive    ),
+    .probe4  (SampLast      ),
+    .probe5  (BitValueValid ),
+    .probe6  (BitValue      ),
+    .probe7  (SampFilt      ),
+    .probe8  (SM            ),
+    .probe9  (BitDone       ),
+    .probe10 (ParityAcc     ),
+    .probe11 (StopDone      ),
+    .probe12 (StopCount     ),
+    .probe13 (RecvData      ),
+    .probe14 (Inhibit_i     ),
+    .probe15 (ParityError_o ),
+    .probe16 (FrameError_o  ),
+    .probe17 (BitCount      ),
+    .probe18 (TickCounter   )
+  );
   
 endmodule

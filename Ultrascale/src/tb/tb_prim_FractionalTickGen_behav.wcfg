@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_prim_FractionalTickGen_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="Interface_UART_pkg" />
+            <top_module name="glbl" />
+            <top_module name="tb_prim_FractionalTickGen" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="2,543.201 ns"></ZoomEndTime>
+      <Cursor1Time time="1,000.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="276"></NameColumnWidth>
+      <ValueColumnWidth column_width="111"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="13" />
+   <wvobject fp_name="/tb_prim_FractionalTickGen/TB_RST_i" type="logic">
+      <obj_property name="ElementShortName">TB_RST_i</obj_property>
+      <obj_property name="ObjectShortName">TB_RST_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_FractionalTickGen/TB_CLK_i" type="logic">
+      <obj_property name="ElementShortName">TB_CLK_i</obj_property>
+      <obj_property name="ObjectShortName">TB_CLK_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_FractionalTickGen/TB_BaudSel_i" type="array">
+      <obj_property name="ElementShortName">TB_BaudSel_i[4:0]</obj_property>
+      <obj_property name="ObjectShortName">TB_BaudSel_i[4:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_FractionalTickGen/TB_Start_i" type="logic">
+      <obj_property name="ElementShortName">TB_Start_i</obj_property>
+      <obj_property name="ObjectShortName">TB_Start_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_FractionalTickGen/TB_Stop_i" type="logic">
+      <obj_property name="ElementShortName">TB_Stop_i</obj_property>
+      <obj_property name="ObjectShortName">TB_Stop_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_FractionalTickGen/TB_TickPulse_o" type="logic">
+      <obj_property name="ElementShortName">TB_TickPulse_o</obj_property>
+      <obj_property name="ObjectShortName">TB_TickPulse_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_FractionalTickGen/TB_RX_Gen" type="logic">
+      <obj_property name="ElementShortName">TB_RX_Gen</obj_property>
+      <obj_property name="ObjectShortName">TB_RX_Gen</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_FractionalTickGen/TB_FREQ_SYSCLK" type="other">
+      <obj_property name="ElementShortName">TB_FREQ_SYSCLK</obj_property>
+      <obj_property name="ObjectShortName">TB_FREQ_SYSCLK</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_FractionalTickGen/TB_MODE_FIXED" type="logic">
+      <obj_property name="ElementShortName">TB_MODE_FIXED</obj_property>
+      <obj_property name="ObjectShortName">TB_MODE_FIXED</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_FractionalTickGen/TB_TICKR_FIXED" type="array">
+      <obj_property name="ElementShortName">TB_TICKR_FIXED[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TB_TICKR_FIXED[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_FractionalTickGen/TB_OVERSAMPL" type="array">
+      <obj_property name="ElementShortName">TB_OVERSAMPL[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TB_OVERSAMPL[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_FractionalTickGen/TB_LOGIC_DEL" type="array">
+      <obj_property name="ElementShortName">TB_LOGIC_DEL[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TB_LOGIC_DEL[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="group22" type="group">
+      <obj_property name="label">UUT</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/RST_i" type="logic">
+         <obj_property name="ElementShortName">RST_i</obj_property>
+         <obj_property name="ObjectShortName">RST_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/CLK_i" type="logic">
+         <obj_property name="ElementShortName">CLK_i</obj_property>
+         <obj_property name="ObjectShortName">CLK_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/BaudSel_i" type="array">
+         <obj_property name="ElementShortName">BaudSel_i[4:0]</obj_property>
+         <obj_property name="ObjectShortName">BaudSel_i[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/Start_i" type="logic">
+         <obj_property name="ElementShortName">Start_i</obj_property>
+         <obj_property name="ObjectShortName">Start_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/Stop_i" type="logic">
+         <obj_property name="ElementShortName">Stop_i</obj_property>
+         <obj_property name="ObjectShortName">Stop_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/TickPulse_o" type="logic">
+         <obj_property name="ElementShortName">TickPulse_o</obj_property>
+         <obj_property name="ObjectShortName">TickPulse_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/BaudSelCode" type="array">
+         <obj_property name="ElementShortName">BaudSelCode[4:0]</obj_property>
+         <obj_property name="ObjectShortName">BaudSelCode[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/Increment" type="array">
+         <obj_property name="ElementShortName">Increment[12:0]</obj_property>
+         <obj_property name="ObjectShortName">Increment[12:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/Accumulate" type="array">
+         <obj_property name="ElementShortName">Accumulate[12:0]</obj_property>
+         <obj_property name="ObjectShortName">Accumulate[12:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/Sum" type="array">
+         <obj_property name="ElementShortName">Sum[13:0]</obj_property>
+         <obj_property name="ObjectShortName">Sum[13:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/FREQ_SYSCLK" type="other">
+         <obj_property name="ElementShortName">FREQ_SYSCLK</obj_property>
+         <obj_property name="ObjectShortName">FREQ_SYSCLK</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/MODE_FIXED" type="logic">
+         <obj_property name="ElementShortName">MODE_FIXED</obj_property>
+         <obj_property name="ObjectShortName">MODE_FIXED</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/TICKR_FIXED" type="array">
+         <obj_property name="ElementShortName">TICKR_FIXED[31:0]</obj_property>
+         <obj_property name="ObjectShortName">TICKR_FIXED[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/OVERSAMPL" type="array">
+         <obj_property name="ElementShortName">OVERSAMPL[31:0]</obj_property>
+         <obj_property name="ObjectShortName">OVERSAMPL[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/TICKR_MIN" type="array">
+         <obj_property name="ElementShortName">TICKR_MIN[31:0]</obj_property>
+         <obj_property name="ObjectShortName">TICKR_MIN[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/TICKRCODE_FIXED" type="array">
+         <obj_property name="ElementShortName">TICKRCODE_FIXED[4:0]</obj_property>
+         <obj_property name="ObjectShortName">TICKRCODE_FIXED[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/TICKRCODE_MIN" type="array">
+         <obj_property name="ElementShortName">TICKRCODE_MIN[4:0]</obj_property>
+         <obj_property name="ObjectShortName">TICKRCODE_MIN[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/OVERSAMPLCODE" type="array">
+         <obj_property name="ElementShortName">OVERSAMPLCODE[2:0]</obj_property>
+         <obj_property name="ObjectShortName">OVERSAMPLCODE[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_prim_FractionalTickGen/UUT/FRAC_W" type="array">
+         <obj_property name="ElementShortName">FRAC_W[31:0]</obj_property>
+         <obj_property name="ObjectShortName">FRAC_W[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>

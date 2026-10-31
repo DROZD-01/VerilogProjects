@@ -74,3 +74,4 @@ xvlog.*
 *.dcp
 *.bak
 .svn/
+/Ultrascale/docs

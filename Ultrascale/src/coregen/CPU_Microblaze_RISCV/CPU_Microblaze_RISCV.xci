@@ -4,7 +4,7 @@
     "xci_name": "CPU_Microblaze_RISCV",
     "component_reference": "xilinx.com:ip:microblaze_riscv:1.0",
     "ip_revision": "7",
-    "gen_directory": ".",
+    "gen_directory": "../../../project/Ultrascale100/Ultrascale100.gen/sources_1/ip/CPU_Microblaze_RISCV",
     "parameters": {
       "component_parameters": {
         "C_FREQ": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
@@ -555,7 +555,7 @@
         "IPCONTEXT": [ { "value": "IP_Flow" } ],
         "IPREVISION": [ { "value": "7" } ],
         "MANAGED": [ { "value": "TRUE" } ],
-        "OUTPUTDIR": [ { "value": "." } ],
+        "OUTPUTDIR": [ { "value": "../../../project/Ultrascale100/Ultrascale100.gen/sources_1/ip/CPU_Microblaze_RISCV" } ],
         "SELECTEDSIMMODEL": [ { "value": "" } ],
         "SHAREDDIR": [ { "value": "." } ],
         "SWVERSION": [ { "value": "2025.2" } ],
@@ -772,5 +772,5 @@
       }
     }
   },
-  "checksum": "185b218c"
+  "checksum": "47389046"
 }
