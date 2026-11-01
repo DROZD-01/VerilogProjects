@@ -26,7 +26,7 @@ module Interface_UART
     parameter bit  MODE_BAUDCTRL   = 1'b0     , // Baudrate control mode: '1' - fixed, '0' - variable
     parameter int  BAUD_UART_DEF   = 115200   , // UART baudrate (for fixed mode)
     parameter int  MAX_DW          = 8        , // Maximum data bits in a word
-    parameter bit  MODE_FULLDUPLEX = 1'b0     , // Enable full-duplex mode
+    parameter bit  MODE_FULLDUPLEX = 1'b1     , // Enable full-duplex mode
     parameter bit  EN_RECEIVER     = 1'b1     , // Enable receiver circuitry generation
     parameter bit  EN_TRANSMITTER  = 1'b1     , // Enable transmitter circuitry generation
     parameter bit  MODE_RE_POL     = 1'b0     , // RE port polarity: '1' - active high / '0' - active low
@@ -42,26 +42,27 @@ module Interface_UART
     input  logic                        RST_i         , // System reset
     input  logic                        CLK_i         , // System clock
     // Data I/O
-    input  logic                        DataValid_i   , // 
-    input  logic [          MAX_DW-1:0] Data_i        , // 
-    output logic                        DataValid_o   , // 
-    output logic [          MAX_DW-1:0] Data_o        , // 
+    input  logic                        DataValid_i       , // 
+    input  logic [          MAX_DW-1:0] Data_i            , // 
+    output logic                        DataValid_o       , // 
+    output logic [          MAX_DW-1:0] Data_o            , // 
     // Settings
-    input  logic [                 4:0] BaudSel_i     , // 
-    input  logic [$clog2(MAX_DW+1)-1:0] DataBits_i    , // 
-    input  logic [                 2:0] ParityType_i  , // 
-    input  logic [                 1:0] StopBits_i    , // 
+    input  logic                        SET_Valid         , // Settings Valid (Can be set to '1', will just autoupdate between transfers)
+    input  logic [                 4:0] SET_BaudSel_i     , // 
+    input  logic [$clog2(MAX_DW+1)-1:0] SET_DataBits_i    , // 
+    input  logic [                 2:0] SET_ParityType_i  , // 
+    input  logic [                 1:0] SET_StopBits_i    , // 
     // Indicators
-    output logic                        RX_Active_o   , // 
-    output logic                        ParityError_o , // 
-    output logic                        FrameError_o  , // 
-    output logic                        TX_Active_o   , // 
-    output logic                        BuffFull_o    , // 
+    output logic                        RX_Active_o       , // 
+    output logic                        ParityError_o     , // 
+    output logic                        FrameError_o      , // 
+    output logic                        TX_Active_o       , // 
+    output logic                        BuffFull_o        , // 
     // External I/O
-    output logic                        RE_o          , // Receiver    enable (for external ICs)
-    output logic                        DE_o          , // Transmitter enable (for external ICs)
-    input  logic                        RX_i          , // 
-    output logic                        TX_o            // 
+    output logic                        RE_o              , // Receiver    enable (for external ICs)
+    output logic                        DE_o              , // Transmitter enable (for external ICs)
+    input  logic                        RX_i              , // 
+    output logic                        TX_o                // 
   );
   
   localparam OVERSAMPLE_N = 16; // Number of samples in one bit
@@ -73,6 +74,33 @@ module Interface_UART
   logic TickPulse_TX  ; // 
   logic TickResync_TX ; // 
   logic Inhibit_TX    ; // 
+  
+  
+  //------------------------------------------------------------------------------------------
+  // Settings Buffer
+  //------------------------------------------------------------------------------------------
+  
+  typedef struct
+  {
+    logic [                 4:0] BaudSel    ;
+    logic [$clog2(MAX_DW+1)-1:0] DataBits   ;
+    logic [                 2:0] ParityType ;
+    logic [                 1:0] StopBits   ;
+  } settings_t;
+  settings_t SB; // Buffered settings
+  
+  always_ff @(posedge CLK_i)
+  begin
+    if(RST_i)
+      SB <= '{default:0};
+    else if(SET_Valid & ~(RX_Active_o | TX_Active_o))
+      SB <= '{
+              BaudSel    : SET_BaudSel_i    , // 
+              DataBits   : SET_DataBits_i   , // 
+              ParityType : SET_ParityType_i , // 
+              StopBits   : SET_StopBits_i     // 
+            };
+  end
   
   //------------------------------------------------------------------------------------------
   //  Baudrate clock gen
@@ -94,14 +122,13 @@ module Interface_UART
         .FREQ_SYSCLK (FREQ_SYSCLK    ), // System clock frequency (in Hz)
         .MODE_FIXED  (MODE_BAUDCTRL  ), // Generation mode:'1' - fixed tick rate, '0' - variable tick rate
         .TICKR_FIXED (BAUD_UART_DEF  ), // Target tickrate (used in fixed mode)
-        .OVERSAMPLE  (OVERSAMPLE_N   ), // Oversampling mode (ticks per bit)
-        .LOGIC_DELAY (0              )  // 
+        .OVERSAMPLE  (OVERSAMPLE_N   )  // Oversampling mode (ticks per bit)
       )
       TickGen_RX
       (
         .RST_i       (RST_i         ), // System reset
         .CLK_i       (CLK_i         ), // System clock
-        .BaudSel_i   (BaudSel_i     ), // 
+        .BaudSel_i   (SB.BaudSel    ), // 
         .Resync_i    (TickResync_RX ), // Clear and start counting
         .TickPulse_o (TickPulse_RX  )  // Tick pulse output
       );
@@ -111,14 +138,13 @@ module Interface_UART
         .FREQ_SYSCLK (FREQ_SYSCLK    ), // System clock frequency (in Hz)
         .MODE_FIXED  (MODE_BAUDCTRL  ), // Generation mode:'1' - fixed tick rate, '0' - variable tick rate
         .TICKR_FIXED (BAUD_UART_DEF  ), // Target tickrate (used in fixed mode)
-        .OVERSAMPLE  (OVERSAMPLE_N   ), // Oversampling mode (ticks per bit)
-        .LOGIC_DELAY (0              )  // 
+        .OVERSAMPLE  (OVERSAMPLE_N   )  // Oversampling mode (ticks per bit)
       )
       TickGen_TX
       (
         .RST_i       (RST_i         ), // System reset
         .CLK_i       (CLK_i         ), // System clock
-        .BaudSel_i   (BaudSel_i     ), // 
+        .BaudSel_i   (SB.BaudSel    ), // 
         .Resync_i    (TickResync_TX ), // Clear and start counting
         .TickPulse_o (TickPulse_TX  )  // Tick pulse output
       );
@@ -145,14 +171,13 @@ module Interface_UART
         .FREQ_SYSCLK (FREQ_SYSCLK    ), // System clock frequency (in Hz)
         .MODE_FIXED  (MODE_BAUDCTRL  ), // Generation mode:'1' - fixed tick rate, '0' - variable tick rate
         .TICKR_FIXED (BAUD_UART_DEF  ), // Target tickrate (used in fixed mode)
-        .OVERSAMPLE  (OVERSAMPLE_N   ), // Oversampling mode (ticks per bit)
-        .LOGIC_DELAY (2              )  // 
+        .OVERSAMPLE  (OVERSAMPLE_N   )  // Oversampling mode (ticks per bit)
       )
       TickGen_Comb
       (
         .RST_i       (RST_i         ), // System reset
         .CLK_i       (CLK_i         ), // System clock
-        .BaudSel_i   (BaudSel_i     ), // 
+        .BaudSel_i   (SB.BaudSel    ), // 
         .Resync_i    (TickResync    ), // Clear and start counting
         .TickPulse_o (TickPulse     )  // Tick pulse output
       );
@@ -183,9 +208,9 @@ module Interface_UART
     .RX_i          (RX_i          ), // Serial data input
     .TickPulse_i   (TickPulse_RX  ), // Tick pulse input
     .Resync_o      (TickResync_RX ), // 
-    .DataBits_i    (DataBits_i    ), // 
-    .ParityType_i  (ParityType_i  ), // 
-    .StopBits_i    (StopBits_i    ), // 
+    .DataBits_i    (SB.DataBits   ), // 
+    .ParityType_i  (SB.ParityType ), // 
+    .StopBits_i    (SB.StopBits   ), // 
     .Inhibit_i     (Inhibit_RX    ), // Inhibits work of the main SM
     .Active_o      (RX_Active_o   ), // Main SM is NOT IDLE
     .ParityError_o (ParityError_o ), // 
@@ -216,9 +241,9 @@ module Interface_UART
     .TX_o         (TX_o           ), // Serial data output
     .TickPulse_i  (TickPulse_TX   ), // Tick pulse input
     .Resync_o     (TickResync_TX  ), // 
-    .DataBits_i   (DataBits_i     ), // 
-    .ParityType_i (ParityType_i   ), // 
-    .StopBits_i   (StopBits_i     ), // 
+    .DataBits_i   (SB.DataBits    ), // 
+    .ParityType_i (SB.ParityType  ), // 
+    .StopBits_i   (SB.StopBits    ), // 
     .Inhibit_i    (Inhibit_TX     ), // Inhibits work of the main SM
     .Active_o     (TX_Active_o    ), // Main SM is NOT IDLE
     .BuffFull_o   (BuffFull_o     ), // Message pre-buffer is full

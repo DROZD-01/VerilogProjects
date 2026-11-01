@@ -48,60 +48,62 @@
   
 module Interface_SPI_Slave
   #(
-    parameter  int  MAX_DATAW    =     32 , // Maximum SPI packet size
-    parameter  bit  DEFAULT_CS   =   1'b1 , // Default CS   value on reset
-    parameter  bit  DEFAULT_SCLK =   1'b0 , // Default SCLK value on reset
-    localparam int  MAX_DATABW   = $clog2(MAX_DATAW + 1)
+    parameter  int  MAX_DW        =   16 , // Maximum SPI packet size
+    parameter  bit  DEFAULT_CS    = 1'b1 , // Default CS   value on reset
+    parameter  bit  DEFAULT_SCLK  = 1'b0 , // Default SCLK value on reset
+    parameter  bit  MODE_VAR_WORD = 1'b0 , // '0' - Word size == MAX_DW, '1' - Word size <= MAX_DW, controlled by DataBits_i
+    parameter  bit  MODE_MSB      = 1'b0 , // '0' - LSB (default), '1' - MSB
+    
+    localparam int  MAX_DBW      = $clog2(MAX_DW + 1)
   )
   (
     // Clocking
-    input  logic                  RST_i             , // System reset
-    input  logic                  CLK_i             , // System clock
+    input  logic               RST_i             , // System reset
+    input  logic               CLK_i             , // System clock
     // SPI I/O
-    input  logic                  CS_i              , // 
-    input  logic                  SCLK_i            , // 
-    input  logic                  MOSI_i            , // 
-    output logic                  MISO_o            , // 
+    input  logic               CS_i              , // 
+    input  logic               SCLK_i            , // 
+    input  logic               MOSI_i            , // 
+    output logic               MISO_o            , // 
     // Settings
-    input  logic                  SET_Valid         , // Settings Valid (Can be set to '1', will just autoupdate between transfers)
-    input  logic [           2:0] SET_SPI_Mode      , // SPI mode (see table)
-    input  logic                  SET_MSB           , // '0' - LSB first, '1' - MSB first
-    input  logic                  SET_CS_Pol        , // CS polarity: '0' - Active LOW, '1' - Active HIGH
+    input  logic               SET_Valid         , // Settings Valid (Can be set to '1', will just autoupdate between transfers)
+    input  logic [        2:0] SET_SPI_Mode      , // SPI mode (see table)
+    input  logic               SET_MSB           , // '0' - LSB first, '1' - MSB first
+    input  logic               SET_CS_Pol        , // CS polarity: '0' - Active LOW, '1' - Active HIGH
+    input  logic [MAX_DBW-1:0] SET_Data_DW       , // Outgoing (MISO) packet data width
     // Parallel I/O
-    input  logic                  Valid_i           , // Outgoing (MISO) packet data valid
-    input  logic [MAX_DATABW-1:0] Data_DW           , // Outgoing (MISO) packet data width
-    input  logic [ MAX_DATAW-1:0] Data_i            , // Outgoing (MISO) packet data
-    output logic                  Valid_o           , // Incoming (MOSI) packed data valid
-    output logic [ MAX_DATAW-1:0] Data_o              // Incoming (MOSI) packed data
+    input  logic               Valid_i           , // Outgoing (MISO) packet data valid
+    input  logic [ MAX_DW-1:0] Data_i            , // Outgoing (MISO) packet data
+    output logic               Valid_o           , // Incoming (MOSI) packed data valid
+    output logic [ MAX_DW-1:0] Data_o              // Incoming (MOSI) packed data
   );
   
   
   typedef struct
   {
-    logic                 CE    ;
-    logic                 L     ;
-    logic                 SLI   ;
-    logic                 SRI   ;
-    logic                 LEFT  ;
-    logic [MAX_DATAW-1:0] D     ;
-    logic [MAX_DATAW-1:0] Q     ;
+    logic              CE    ;
+    logic              L     ;
+    logic              SLI   ;
+    logic              SRI   ;
+    logic              LEFT  ;
+    logic [MAX_DW-1:0] D     ;
+    logic [MAX_DW-1:0] Q     ;
   } sregi_t;
   sregi_t IData;
   
   typedef struct
   {
-    logic                 CE    ;
-    logic                 L     ;
-    logic                 SLI   ;
-    logic                 SRI   ;
-    logic                 LEFT  ;
-    logic [MAX_DATAW-1:0] D     ;
-    logic                 SLO   ;
-    logic                 SRO   ;
+    logic              CE    ;
+    logic              L     ;
+    logic              SLI   ;
+    logic              SRI   ;
+    logic              LEFT  ;
+    logic [MAX_DW-1:0] D     ;
+    logic              SLO   ;
+    logic              SRO   ;
   } srego_t;
   srego_t OData;
   
-  logic SET_CPOL    ; // '0' - Active LOW, '1' - Active HIGH
   logic SET_Preload ; // '1' - preload needed
   logic SET_RX_Edge ; // '0' - posedge, '1' - negedge
   logic SET_TX_Edge ; // '0' - posedge, '1' - negedge
@@ -109,26 +111,26 @@ module Interface_SPI_Slave
   always_comb
   begin:spimode_comb
     case(SET_SPI_Mode)
-      (3'd0)  : {SET_CPOL, SET_Preload, SET_RX_Edge, SET_TX_Edge} = 4'b0_1_01; // Standard SPI mode 0
-      (3'd1)  : {SET_CPOL, SET_Preload, SET_RX_Edge, SET_TX_Edge} = 4'b0_0_10; // Standard SPI mode 1
-      (3'd2)  : {SET_CPOL, SET_Preload, SET_RX_Edge, SET_TX_Edge} = 4'b1_1_10; // Standard SPI mode 2
-      (3'd3)  : {SET_CPOL, SET_Preload, SET_RX_Edge, SET_TX_Edge} = 4'b1_0_01; // Standard SPI mode 3
-      (3'd4)  : {SET_CPOL, SET_Preload, SET_RX_Edge, SET_TX_Edge} = 4'b0_0_11; // Custom   SPI mode 0 
-      (3'd5)  : {SET_CPOL, SET_Preload, SET_RX_Edge, SET_TX_Edge} = 4'b0_1_00; // Custom   SPI mode 1 
-      (3'd6)  : {SET_CPOL, SET_Preload, SET_RX_Edge, SET_TX_Edge} = 4'b1_0_00; // Custom   SPI mode 2 
-      (3'd7)  : {SET_CPOL, SET_Preload, SET_RX_Edge, SET_TX_Edge} = 4'b1_1_11; // Custom   SPI mode 3 
-      default : {SET_CPOL, SET_Preload, SET_RX_Edge, SET_TX_Edge} = 4'b0_0_00; // ERR
+      (3'd0)  : {SET_Preload, SET_RX_Edge, SET_TX_Edge} = 3'b1_01; // Standard SPI mode 0
+      (3'd1)  : {SET_Preload, SET_RX_Edge, SET_TX_Edge} = 3'b0_10; // Standard SPI mode 1
+      (3'd2)  : {SET_Preload, SET_RX_Edge, SET_TX_Edge} = 3'b1_10; // Standard SPI mode 2
+      (3'd3)  : {SET_Preload, SET_RX_Edge, SET_TX_Edge} = 3'b0_01; // Standard SPI mode 3
+      (3'd4)  : {SET_Preload, SET_RX_Edge, SET_TX_Edge} = 3'b0_11; // Custom   SPI mode 0 
+      (3'd5)  : {SET_Preload, SET_RX_Edge, SET_TX_Edge} = 3'b1_00; // Custom   SPI mode 1 
+      (3'd6)  : {SET_Preload, SET_RX_Edge, SET_TX_Edge} = 3'b0_00; // Custom   SPI mode 2 
+      (3'd7)  : {SET_Preload, SET_RX_Edge, SET_TX_Edge} = 3'b1_11; // Custom   SPI mode 3 
+      default : {SET_Preload, SET_RX_Edge, SET_TX_Edge} = 3'b0_00; // ERR
     endcase
   end
   
   typedef struct
   {
-    logic MSB     ;
-    logic CPOL    ;
-    logic Preload ;
-    logic RX_Edge ;
-    logic TX_Edge ;
-    logic CS_POL  ;
+    logic               MSB     ;
+    logic               Preload ;
+    logic               RX_Edge ;
+    logic               TX_Edge ;
+    logic               CS_POL  ;
+    logic [MAX_DBW-1:0] DATAW   ;
   } settings_t;
   settings_t SB; // Buffered settings
   
@@ -138,10 +140,27 @@ module Interface_SPI_Slave
       SB <= '{default:0};
     else if(SET_Valid & ~CS_Active)
       SB <= '{
-              MSB: SET_MSB, CPOL: SET_CPOL, Preload: SET_Preload, 
-              RX_Edge: SET_RX_Edge, TX_Edge: SET_TX_Edge, CS_POL: SET_CS_Pol
+              MSB     : SET_MSB     , //
+              Preload : SET_Preload , //
+              RX_Edge : SET_RX_Edge , //
+              TX_Edge : SET_TX_Edge , //
+              CS_POL  : SET_CS_Pol  , //
+              DATAW   : SET_Data_DW   // 
             };
   end
+  
+  logic [MAX_DW-1:0] MSB_Flag;
+  
+  prim_OneHot_Conv 
+  #(
+    .BIN_W (MAX_DBW), // binary input width (derived, normally leave default)
+    .OUT_W (MAX_DW )  // one-hot output width
+  )
+  DataW_OneHot
+  (
+    .Binary_i (SB.DATAW   ), // normal (binary-encoded) input, valid range 0 .. OUT_W-1
+    .OneHot_o (MSB_Flag   )  // one-hot output: onehot_out[bin_in] = 1'b1
+  );
   
   //------------------------------------------------------------------------------------------
   // CS detection
@@ -199,7 +218,7 @@ module Interface_SPI_Slave
   end
   
   //------------------------------------------------------------------------------------------
-  // MOSI Preload and output
+  // MISO Preload and output
   //------------------------------------------------------------------------------------------
   
   logic MISO_Sel;
@@ -225,24 +244,49 @@ module Interface_SPI_Slave
   
   prim_SRxWRLED
   #(
-    .DATA_W  (MAX_DATAW), // Shift register length
-    .RST_POL (1'b0     ), // Default value of shift register
-    .CLK_POL (1'b0     )  // '0' - posedge, '1' - negedge
+    .DATA_W  (MAX_DW), // Shift register length
+    .RST_POL (1'b0  ), // Default value of shift register
+    .CLK_POL (1'b0  )  // '0' - posedge, '1' - negedge
   )
   MISO_Shift
   (
-    .C    (CLK_i          ), // Clock
-    .R    (RST_i || CS_End), // Reset
-    .CE   (OData.CE       ), // Clock Enable
-    .L    (OData.L        ), // Load Enable
-    .SLI  (OData.SLI      ), // Shift-left  IN
-    .SRI  (OData.SRI      ), // Shift-right IN
-    .LEFT (OData.LEFT     ), // Left('1', Qx <- Q0) / Right('0', Qx -> Q0)
-    .D    (OData.D        ), // Parallel Input
-    .Q    (               ), // Parallel Output
-    .SLO  (OData.SLO      ), // Shift-left  OUT
-    .SRO  (OData.SRO      )  // Shift-right OUT
+    .C    (CLK_i            ), // Clock
+    .R    (RST_i || CS_End  ), // Reset
+    .CE   (OData.CE         ), // Clock Enable
+    .L    (OData.L          ), // Load Enable
+    .SLI  (OData.SLI        ), // Shift-left  IN
+    .SRI  (OData.SRI        ), // Shift-right IN
+    .LEFT (OData.LEFT       ), // Left('1', Qx <- Q0) / Right('0', Qx -> Q0)
+    .M    (MSB_Flag         ), // Parallel Mask Input (one-hot MSB-end cell of window [top:0])
+    .D    (OData.D          ), // Parallel Input
+    .Q    (                 ), // Parallel Output
+    .SLO  (OData.SLO        ), // Shift-left  OUT
+    .SRO  (OData.SRO        )  // Shift-right OUT
   );
+  
+  
+  //------------------------------------------------------------------------------------------
+  // MOSI Load and output
+  //------------------------------------------------------------------------------------------
+  
+  always_ff @(posedge CLK_i)
+  begin:mosi_in
+    if(RST_i)
+    begin
+      Valid_o <= 1'b0;
+      Data_o  <= '{default:0};
+    end
+    else 
+    begin
+      Valid_o <= 1'b0;
+      
+      if(CS_End)
+      begin
+        Valid_o <= 1'b1;
+        Data_o  <= IData.Q;
+      end
+    end
+  end
   
   always_comb
   begin
@@ -256,9 +300,9 @@ module Interface_SPI_Slave
   
   prim_SRxWRLED
   #(
-    .DATA_W  (MAX_DATAW), // Shift register length
-    .RST_POL (1'b0     ), // Default value of shift register
-    .CLK_POL (1'b0     )  // '0' - posedge, '1' - negedge
+    .DATA_W  (MAX_DW), // Shift register length
+    .RST_POL (1'b0  ), // Default value of shift register
+    .CLK_POL (1'b0  )  // '0' - posedge, '1' - negedge
   )
   MOSI_Shift
   (
@@ -269,6 +313,7 @@ module Interface_SPI_Slave
     .SLI  (IData.SLI        ), // Shift-left  IN
     .SRI  (IData.SRI        ), // Shift-right IN
     .LEFT (IData.LEFT       ), // Left('1', Qx <- Q0) / Right('0', Qx -> Q0)
+    .M    (MSB_Flag         ), // Parallel Mask Input (one-hot MSB-end cell of window [top:0])
     .D    (IData.D          ), // Parallel Input
     .Q    (IData.Q          ), // Parallel Output
     .SLO  (                 ), // Shift-left  OUT

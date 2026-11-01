@@ -395,7 +395,7 @@ module prim_UART_RX
       end
     end
   endgenerate
-  
+  /*
   ILA_UART_RX ILA_RX
   (
     .clk     (CLK_i         ),
@@ -419,5 +419,5 @@ module prim_UART_RX
     .probe17 (BitCount      ),
     .probe18 (TickCounter   )
   );
-  
+  */
 endmodule

@@ -33,7 +33,6 @@ module prim_FractionalTickGen
     parameter  bit  MODE_FIXED   = 1'b0     , // Generation mode:'1' - fixed tick rate, '0' - variable tick rate
     parameter  int  TICKR_FIXED  = 115200   , // Target tickrate (used in fixed mode)
     parameter  int  OVERSAMPLE   = 16       , // Oversampling mode (ticks per bit)
-    parameter  int  LOGIC_DELAY  = 0        , // Preload value multiplier
     parameter  int  BV_NUM       = BV_DEF   , // Number of entries in BAUD_VALUES
     parameter  int  BAUD_VAL [0:BV_NUM-1] = BAUD_DEF,
     localparam int  BV_WIDTH     = $clog2(BV_NUM)
@@ -144,7 +143,7 @@ module prim_FractionalTickGen
     end
     else
     begin
-      Accumulate  <= (Resync_i)? (Increment*(LOGIC_DELAY+1)) : Sum[FRAC_W-1:0];
+      Accumulate  <= (Resync_i)? Increment : Sum[FRAC_W-1:0];
       TickPulse_o <= Sum[FRAC_W];
     end
   end
