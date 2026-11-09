@@ -30,7 +30,7 @@ import prim_FractionalTickGen_pkg::*;
 module prim_FractionalTickGen
   #(
     parameter  real FREQ_SYSCLK  = 100.0e6  , // System clock frequency (in Hz)
-    parameter  bit  MODE_FIXED   = 1'b0     , // Generation mode:'1' - fixed tick rate, '0' - variable tick rate
+    parameter  bit  MODE_FIXED   = 1'b0     , // Generation mode:'0' - fixed tick rate, '1' - variable tick rate
     parameter  int  TICKR_FIXED  = 115200   , // Target tickrate (used in fixed mode)
     parameter  int  OVERSAMPLE   = 16       , // Oversampling mode (ticks per bit)
     parameter  int  BV_NUM       = BV_DEF   , // Number of entries in BAUD_VALUES
@@ -74,9 +74,10 @@ module prim_FractionalTickGen
                                 input int  OverSample_C ,  // Oversampling
                                 input real SysCLK_C     ); // 
     if(MODE_C)
-      return $clog2(int'(((10.5*SysCLK_C)/(real'(BaudFixed_C) * real'(OverSample_C))) / 0.01)); // 
-    else
       return $clog2(int'(((10.5*SysCLK_C)/(real'(BaudMin_C  ) * real'(OverSample_C))) / 0.01)); // 
+    else
+      return $clog2(int'(((10.5*SysCLK_C)/(real'(BaudFixed_C) * real'(OverSample_C))) / 0.01)); // 
+    
   endfunction
   localparam int FRAC_W = FTGenWidthVar_f(TICKR_MIN, TICKR_FIXED, MODE_FIXED, OVERSAMPLE, FREQ_SYSCLK);
   
@@ -112,7 +113,7 @@ module prim_FractionalTickGen
                                input int                  OverSample_C ,  // Oversampling
                                input int                  FractWidth_C ,  // 
                                input real                 SysCLK_C     ); // 
-      if(MODE_C)
+      if(~MODE_C)
         return IncrementVal_f(BaudFixed_C , OverSample_C, FractWidth_C, SysCLK_C);
       if(BaudSelect_C < BV_NUM)
         return BR_INCR_C[BaudSelect_C];

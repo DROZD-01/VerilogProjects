@@ -257,9 +257,4 @@ module prim_CRC_Calculator
       CRC_o <= CRC_Finalize_f(crc_d);
     end
   end
-  
-  
-  
-  
-  
 endmodule

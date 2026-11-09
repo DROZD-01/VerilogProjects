@@ -23,7 +23,7 @@
 module Interface_UART
   #(
     parameter real FREQ_SYSCLK     = 100e6    , // System clock frequency (in Hz)
-    parameter bit  MODE_BAUDCTRL   = 1'b0     , // Baudrate control mode: '1' - fixed, '0' - variable
+    parameter bit  MODE_BAUDCTRL   = 1'b0     , // Baudrate control mode: '0' - fixed, '1' - variable
     parameter int  BAUD_UART_DEF   = 115200   , // UART baudrate (for fixed mode)
     parameter int  MAX_DW          = 8        , // Maximum data bits in a word
     parameter bit  MODE_FULLDUPLEX = 1'b1     , // Enable full-duplex mode
@@ -120,7 +120,7 @@ module Interface_UART
       prim_FractionalTickGen
       #(
         .FREQ_SYSCLK (FREQ_SYSCLK    ), // System clock frequency (in Hz)
-        .MODE_FIXED  (MODE_BAUDCTRL  ), // Generation mode:'1' - fixed tick rate, '0' - variable tick rate
+        .MODE_FIXED  (MODE_BAUDCTRL  ), // Generation mode:'0' - fixed tick rate, '1' - variable tick rate
         .TICKR_FIXED (BAUD_UART_DEF  ), // Target tickrate (used in fixed mode)
         .OVERSAMPLE  (OVERSAMPLE_N   )  // Oversampling mode (ticks per bit)
       )
@@ -136,7 +136,7 @@ module Interface_UART
       prim_FractionalTickGen
       #(
         .FREQ_SYSCLK (FREQ_SYSCLK    ), // System clock frequency (in Hz)
-        .MODE_FIXED  (MODE_BAUDCTRL  ), // Generation mode:'1' - fixed tick rate, '0' - variable tick rate
+        .MODE_FIXED  (MODE_BAUDCTRL  ), // Generation mode:'0' - fixed tick rate, '1' - variable tick rate
         .TICKR_FIXED (BAUD_UART_DEF  ), // Target tickrate (used in fixed mode)
         .OVERSAMPLE  (OVERSAMPLE_N   )  // Oversampling mode (ticks per bit)
       )
@@ -169,7 +169,7 @@ module Interface_UART
       prim_FractionalTickGen
       #(
         .FREQ_SYSCLK (FREQ_SYSCLK    ), // System clock frequency (in Hz)
-        .MODE_FIXED  (MODE_BAUDCTRL  ), // Generation mode:'1' - fixed tick rate, '0' - variable tick rate
+        .MODE_FIXED  (MODE_BAUDCTRL  ), // Generation mode:'0' - fixed tick rate, '1' - variable tick rate
         .TICKR_FIXED (BAUD_UART_DEF  ), // Target tickrate (used in fixed mode)
         .OVERSAMPLE  (OVERSAMPLE_N   )  // Oversampling mode (ticks per bit)
       )
