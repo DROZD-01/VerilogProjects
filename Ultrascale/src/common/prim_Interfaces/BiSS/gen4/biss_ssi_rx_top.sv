@@ -14,7 +14,7 @@
 //                  +----------------------------------------------------+
 //                  |                  biss_ssi_rx_top                   |
 //                  |                                                    |
-//   cfg ---------->| [clamp + snapshot @ frame_load] --> cfg_s          |
+//   cfg ---------->| [clamp + snapshot + tick-domain conv] --> cfg_s    |
 //                  |                                                    |
 //                  |  prim_FractionalTickGen  --->  tick_ce             |
 //                  |    baud = MA frequency, OVERSAMPLE ticks per       |
@@ -65,13 +65,19 @@
 //     mod-(OVERSAMPLE/2) divider below turns tick_ce into hp_ce, the MA
 //     half-period boundary on which ma_frame_fsm toggles MA;
 //   * ALL delay magnitudes (delay measurement, delay tap, manual
-//     rx_dly_ticks) are in OVERSAMPLING TICKS, a speed-relative unit; no
-//     sys<->tick conversion exists anywhere. A measurement taken at speed A
+//     rx_dly_ticks) are in OVERSAMPLING TICKS, a speed-relative unit, and
+//     pass through the design unconverted. A measurement taken at speed A
 //     and applied at speed B therefore denotes a different physical delay -
 //     auto mode re-measures every frame and converges after one frame;
-//   * absolute-time magnitudes (gap_ticks, margin_cyc, wdt_ticks,
-//     cdm_ext_ticks) stay in system-clock ticks; they bound real,
-//     speed-independent quantities such as the sensor's ~20 us timeout.
+//   * absolute-time magnitudes (gap_ticks, wdt_ticks, cdm_ext_ticks) are
+//     specified in system-clock ticks - they bound real, speed-independent
+//     quantities such as the sensor's ~20 us timeout - and are converted
+//     to oversampling ticks at frame acceptance with the Q16 tick-rate
+//     ratio of the accepted speed gear (TICK_RATIO below); every delay /
+//     timeout counter (inter-frame gap, frame watchdog, CDM start
+//     extension) therefore counts tick strobes. margin_cyc is specified
+//     in MA cycles - already an integral number of oversampling ticks -
+//     and needs no conversion.
 // Feasibility: the fastest gear requires OVERSAMPLE * f_MA < FREQ_SYSCLK
 // (at least one system clock per tick); checked at elaboration below.
 //
@@ -146,7 +152,9 @@
 // =================== 7. INTEGRATION NOTES ===========================
 //  * cfg.gap_ticks [sys ticks] must exceed BOTH the slave timeout (BiSS-C
 //    typ. >= 20 us or adaptive) AND the round-trip line delay in absolute
-//    time - mind this when running slow speed gears.
+//    time - mind this when running slow speed gears. The value converts
+//    into the tick domain at frame acceptance, with the accepted gear's
+//    ratio (truncation may shorten it by up to one oversampling tick).
 //  * cfg fields are snapshotted at frame acceptance (frame_load), so
 //    mid-frame changes apply at the next frame; cfg.ma_speed included.
 //  * The CRC parameters below implement the BiSS-C process-data CRC
@@ -189,14 +197,17 @@ typedef struct packed {
   logic [4:0]  ma_speed;       // MA speed gear -> MA_BAUD_VAL table below;
                                // snapshotted, so speed changes land at frame
                                // boundaries
-  logic [15:0] gap_ticks;      // inter-frame idle [sys ticks]; >= sensor
+  logic [15:0] gap_ticks;      // inter-frame idle [sys ticks; converted
+                               //    to ovs ticks at frame acceptance]; >= sensor
                                // timeout AND >= round-trip delay in absolute
                                // time
   logic [15:0] margin_cyc;     // extra MA cycles before TX abort (0 = infinite)
-  logic [23:0] wdt_ticks;      // frame watchdog [sys ticks] (0 = infinite)
+  logic [23:0] wdt_ticks;      // frame watchdog [sys ticks; converted to
+                               //    ovs ticks at frame acceptance] (0 = infinite)
   logic [15:0] rx_dly_ticks;   // manual sampling delay [oversampling ticks];
                                // clamped to the pipe range at the snapshot
-  logic [11:0] cdm_ext_ticks;  // CDM '1' frame-start extension [sys ticks]
+  logic [11:0] cdm_ext_ticks;  // CDM '1' frame-start extension [sys ticks;
+                               //    converted live to ovs ticks]
 } cfg_t;
 
 typedef struct packed {
@@ -209,7 +220,6 @@ typedef struct packed {
   logic        e_cdm;        // CDM register access aborted
   // measurements
   logic [23:0] ld_ticks;     // last measured round-trip line delay [ovs ticks]
-  logic [15:0] ld_ma_cyc;    // same delay in MA half-cycles (informational)
   logic [15:0] tap_active;   // currently applied RX sampling delay [ovs ticks]
   // live state
   logic        busy;
@@ -229,7 +239,7 @@ module biss_ssi_rx_top #(
   // Delay history depth: 2^RAM_LOG2 MA half-period strobes. The maximum
   // representable delay is (2^RAM_LOG2 - 1) half-periods + OVERSAMPLE/2 - 1
   // ticks; every TAP_W-bit value is representable by construction.
-  parameter int  RAM_LOG2    = 4
+  parameter int  RAM_LOG2    = 6
 )(
   input  logic clk,     // system clock (single clock domain)
   input  logic rst_n,   // async, active low
@@ -257,11 +267,11 @@ module biss_ssi_rx_top #(
   output logic [MAX_CDS_BITS-1:0]           cds_out,   // received CDS bits
   output logic crc_ok,                            // frame CRC check (with data_valid)
   output logic reg_valid,                         // pulse: reg_rdata valid (read)
-  output logic [7:0] reg_rdata
+  output logic [7:0] reg_rdata,
 
   // ---- status / debug ----
-  //output status_t status,
-  //output logic [31:0] dbg_state   // {mf[2:0], rx[2:0], cc[2:0]}
+  output status_t status,
+  output logic [31:0] dbg_state   // {mf[2:0], rx[2:0], cc[2:0]}
 );
 
   // ===================================================================
@@ -299,6 +309,25 @@ module biss_ssi_rx_top #(
   2_343_750, 2_437_500, 2_531_250, 2_625_000, 2_718_750, 2_812_500, 2_906_250, 3_000_000
   };
 
+  // ---- tick-domain conversion table ----
+  // Q16 fixed-point ratio of the oversampling tick rate to the system
+  // clock, per speed gear: 2^16 * OVERSAMPLE * MA_BAUD_VAL[g] /
+  // FREQ_SYSCLK. Computed at elaboration with the same truncating formula
+  // the tick generator uses for its own increment (IncrementVal_f), so
+  // values converted with this ratio run on the tick rate the generator
+  // actually produces. The elaboration feasibility check below keeps every
+  // entry strictly below 2^16, so no converted value can overflow its field.
+  localparam int unsigned RATIO_Q = 16;
+  typedef int tick_ratio_t [0:MA_SPEED_NUM-1];
+  function automatic tick_ratio_t tick_ratio_tbl_f();
+    tick_ratio_t t;
+    for (int unsigned i = 0; i < MA_SPEED_NUM; i++)
+      t[i] = int'((real'(OVERSAMPLE) * real'(MA_BAUD_VAL[i])
+                   * real'(2**RATIO_Q)) / FREQ_SYSCLK);
+    return t;
+  endfunction
+  localparam tick_ratio_t TICK_RATIO = tick_ratio_tbl_f();
+
   // -------------------------------------------------------------------
   // Elaboration-time checks
   // -------------------------------------------------------------------
@@ -326,6 +355,13 @@ module biss_ssi_rx_top #(
   // configuration
   cfg_t cfg_c;   // clamped, live
   cfg_t cfg_s;   // per-frame snapshot
+
+  // tick-domain delay / timeout values (converted from the system-clock
+  // values with the accepted gear's Q16 ratio; see TICK_RATIO)
+  logic [15:0] ratio_sel;  // Q16 ratio of the gear being accepted
+  logic [15:0] gap_t;     // inter-frame gap [ovs ticks]
+  logic [23:0] wdt_t;     // frame watchdog [ovs ticks]
+  logic [11:0] cdme_t;    // CDM '1' start extension [ovs ticks]
 
   // frame geometry
   logic [BITW-1:0] frame_bits;
@@ -418,9 +454,11 @@ module biss_ssi_rx_top #(
   assign sl_sync = sl_ff[1];
 
   // ===================================================================
-  // Configuration: clamp (live) + snapshot at frame acceptance.
-  // frame_load is a combinational acceptance strobe -> the snapshot is
-  // valid one cycle later, before the first MA edge can occur.
+  // Configuration: clamp (live) + snapshot at frame acceptance + tick-
+  // domain conversion of the absolute-time magnitudes (gap / watchdog /
+  // CDM start extension) with the accepted gear's Q16 ratio. frame_load
+  // is a combinational acceptance strobe -> the snapshot is valid one
+  // cycle later, before the first MA edge can occur.
   // ===================================================================
   always_comb begin
     cfg_c = cfg;
@@ -429,9 +467,25 @@ module biss_ssi_rx_top #(
     if (cfg.rx_dly_ticks > TAP_MAX) cfg_c.rx_dly_ticks = TAP_MAX;
   end
 
+  // Ratio of the gear being accepted. The CDM start extension is consumed
+  // combinationally at frame acceptance, so its conversion is combinational
+  // too (live value, ratio of that same gear).
+  assign ratio_sel = 16'($unsigned(TICK_RATIO[cfg_c.ma_speed]));
+  assign cdme_t    = 12'(((28'(cfg_c.cdm_ext_ticks) * 28'(ratio_sel)) >> RATIO_Q));
+
   always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n)          cfg_s <= '0;
-    else if (frame_load) cfg_s <= cfg_c;
+    if (!rst_n) begin
+      cfg_s <= '0;
+      gap_t <= '0;
+      wdt_t <= '0;
+    end else if (frame_load) begin
+      cfg_s <= cfg_c;
+      // Gap and watchdog convert with the accepted gear's ratio: both are
+      // consumed after this cycle, while the tick generator runs at that
+      // gear, so the counting grid matches the conversion ratio.
+      gap_t <= 16'(((32'(cfg_c.gap_ticks) * 32'(ratio_sel)) >> RATIO_Q));
+      wdt_t <= 24'(((40'(cfg_c.wdt_ticks) * 40'(ratio_sel)) >> RATIO_Q));
+    end
   end
 
   // frame geometry from the snapshot:
@@ -451,15 +505,16 @@ module biss_ssi_rx_top #(
     .rst_n        (rst_n),
     .proto_biss   (cfg_s.proto == PROTO_BISS),
     .frame_bits   (frame_bits),
-    .gap_ticks    (cfg_s.gap_ticks),
+    .gap_ticks    (gap_t),   // [ovs ticks] (converted at frame_load)
     .margin_cyc   (cfg_s.margin_cyc),
-    .wdt_ticks    (cfg_s.wdt_ticks),
+    .wdt_ticks    (wdt_t),   // [ovs ticks] (converted at frame_load)
     .en           (cfg.enable),
     .ma_idle_lvl  (cfg.ma_idle_lvl),
-    .cdm_ext_ticks(cfg.cdm_ext_ticks),
+    .cdm_ext_ticks(cdme_t),  // [ovs ticks] (live conversion)
     .op_req       (op_req),
     .cdm_req      (cdm_req),
     .cdm_bit      (cdm_bit),
+    .tick_ce      (tick_ce),
     .hp_ce        (hp_ce),
     .rx_frame_done(rx_frame_done),
     .frame_load   (frame_load),
@@ -674,18 +729,17 @@ module biss_ssi_rx_top #(
   end
 
   // measurements: tick-domain values, zero-extended into the status fields
-  //assign status.e_crc       = e_crc;
-  //assign status.e_no_start  = e_no_start;
-  //assign status.e_no_marker = e_no_marker;
-  //assign status.e_wdt       = e_wdt;
-  //assign status.e_meas      = e_meas;
-  //assign status.e_cdm       = e_cdm;
-  //assign status.ld_ticks    = 24'(tick_delay);            // [ovs ticks]
-  //assign status.ld_ma_cyc   = 16'(tick_delay >> HP_W);    // [MA half-cycles]
-  //assign status.tap_active  = 16'(rx_dly_active);         // [ovs ticks]
-  //assign status.busy        = frame_active || cdm_busy;
-  //assign status.frame_cnt   = frame_cnt;
-  //assign status.err_cnt     = err_cnt;
+  assign status.e_crc       = e_crc;
+  assign status.e_no_start  = e_no_start;
+  assign status.e_no_marker = e_no_marker;
+  assign status.e_wdt       = e_wdt;
+  assign status.e_meas      = e_meas;
+  assign status.e_cdm       = e_cdm;
+  assign status.ld_ticks    = 24'(tick_delay);            // [ovs ticks]
+  assign status.tap_active  = 16'(rx_dly_active);         // [ovs ticks]
+  assign status.busy        = frame_active || cdm_busy;
+  assign status.frame_cnt   = frame_cnt;
+  assign status.err_cnt     = err_cnt;
 
   assign data_valid  = res_valid;
   assign pos_out     = res_pos;
@@ -695,6 +749,6 @@ module biss_ssi_rx_top #(
   assign crc_ok      = res_crc_ok;
 
   // FSM state debug: {mf[2:0], rx[2:0], cc[2:0]}
-  //assign dbg_state = {23'd0, mf_dbg, rx_dbg, cc_dbg};
+  assign dbg_state = {23'd0, mf_dbg, rx_dbg, cc_dbg};
 
 endmodule

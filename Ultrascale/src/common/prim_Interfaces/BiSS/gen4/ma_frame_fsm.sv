@@ -11,6 +11,14 @@
 // at every configured MA speed, MA keeps a 50 % duty cycle and its edges stay
 // locked to the tick grid.
 //
+// Every delay / timeout counter in this module - the inter-frame gap, the
+// frame watchdog and the CDM start extension - counts 'tick_ce' strobes on
+// the oversampling tick grid. Their load values arrive already converted
+// into oversampling ticks by the top level: the configuration specifies
+// them in system-clock ticks (speed-independent absolute time), and the
+// top converts them with the Q16 tick-rate ratio of the accepted speed
+// gear, so the absolute-time semantics hold at every MA speed.
+//
 // State diagram:
 //
 //   MF_IDLE --accept(op_req | cdm_req)--> [MF_CDM_DLY] --> MF_RUN
@@ -29,12 +37,12 @@
 //                 exactly the number of extra cycles the delayed return path
 //                 needs, for any line delay. Two safety nets bound a dead
 //                 line: the bit margin (2*(frame_bits + margin_cyc) MA
-//                 half-cycles) and the watchdog ('wdt_ticks' system-clock
+//                 half-cycles) and the watchdog ('wdt_ticks' oversampling
 //                 ticks); either aborts the frame with 'frame_abort'. Extra
 //                 cycles after the slave's last bit are benign: the slave sits
 //                 in its post-frame timeout region and ignores clocks until MA
 //                 stays at the idle level long enough.
-//   MF_GAP      : MA idle for 'gap_ticks' system-clock ticks - the BiSS-C
+//   MF_GAP      : MA idle for 'gap_ticks' oversampling ticks - the BiSS-C
 //                 "timeout state". The gap must exceed both the slave timeout
 //                 and the round-trip line delay in absolute time, so that
 //                 stale strobes drain before the next frame starts.
@@ -60,7 +68,8 @@
 // CDM encoding (BiSS-C register communication):
 //   One control-data-master (CDM) bit travels in-band per frame. This module
 //   implements "CDM = 1" as an extension of the pre-frame MA idle time by
-//   'cdm_ext_ticks' system-clock ticks (state MF_CDM_DLY). The exact physical
+//   'cdm_ext_ticks' oversampling ticks (state MF_CDM_DLY; the value arrives
+//   converted from system-clock ticks by the top level). The exact physical
 //   encoding must be aligned with the licensed "BiSS C Protocol Description"
 //   and AN11 "BiSS C Register Access Details" (biss-interface.com); the frame
 //   sequencing (one CDM bit per frame) is unaffected by that choice.
@@ -72,22 +81,27 @@ module ma_frame_fsm #(
   input  logic        clk,
   input  logic        rst_n,
 
-  // per-frame snapshot (latched by the top level at frame_load)
+  // per-frame snapshot values (latched / converted by the top level at
+  // frame_load)
   input  logic        proto_biss,    // 1 = BiSS-C, 0 = SSI
   input  logic [$clog2(MAX_FRAME_BITS+1)-1:0] frame_bits, // frame length [bits]
-  input  logic [15:0] gap_ticks,     // inter-frame gap [sys ticks]
+  input  logic [15:0] gap_ticks,     // inter-frame gap [ovs ticks]
   input  logic [15:0] margin_cyc,    // extra MA cycles before TX abort
-  input  logic [23:0] wdt_ticks,     // frame watchdog [sys ticks], 0 = infinite
+  input  logic [23:0] wdt_ticks,     // frame watchdog [ovs ticks], 0 = infinite
 
   // live controls (act immediately)
   input  logic        en,            // global enable
   input  logic        ma_idle_lvl,   // MA level while idle
-  input  logic [11:0] cdm_ext_ticks, // CDM '1' start extension [sys ticks]
+  input  logic [11:0] cdm_ext_ticks, // CDM '1' start extension [ovs ticks]
 
   // frame requests
   input  logic        op_req,        // process-data frame request
   input  logic        cdm_req,       // CDM frame request (has priority)
   input  logic        cdm_bit,       // CDM bit to encode into this frame
+
+  // oversampling tick strobe from the shared tick generator - the
+  // counting grid of every delay / timeout counter in this module
+  input  logic        tick_ce,
 
   // MA half-period boundary strobe: one system-clock pulse every
   // OVERSAMPLE/2 oversampling ticks, free-running
@@ -221,18 +235,22 @@ module ma_frame_fsm #(
         end
 
         // -------------------------------------------------------------
-        // CDM '1' encoding: prolonged MA idle before the frame start.
+        // CDM '1' encoding: prolonged MA idle before the frame start,
+        // counted on the oversampling tick grid.
         MF_CDM_DLY: begin
           ma <= ma_idle_lvl;
-          if (cdm_dly_cnt != '0) cdm_dly_cnt <= cdm_dly_cnt - 12'd1;
-          else                   st          <= MF_RUN;
+          if (cdm_dly_cnt != '0) begin
+            if (tick_ce) cdm_dly_cnt <= cdm_dly_cnt - 12'd1;
+          end else begin
+            st <= MF_RUN;
+          end
         end
 
         // -------------------------------------------------------------
         MF_RUN: begin
           rx_done_seen <= rx_done_seen | rx_frame_done;
 
-          // ---- frame watchdog (sys ticks, absolute time; 0 = infinite) ----
+          // ---- frame watchdog (oversampling ticks; 0 = infinite) ----
           if ((wdt_ticks != '0) && (wdt_cnt >= wdt_ticks)) begin
             ev_wdt       <= 1'b1;
             frame_abort  <= 1'b1;
@@ -240,7 +258,7 @@ module ma_frame_fsm #(
             frame_active <= 1'b0;
             st           <= MF_GAP;
           end else begin
-            if (wdt_ticks != '0) wdt_cnt <= wdt_cnt + 24'd1;
+            if (tick_ce && (wdt_ticks != '0)) wdt_cnt <= wdt_cnt + 24'd1;
 
             if (hp_ce) begin
               if (rx_done_seen && (ma == ma_idle_lvl)) begin
@@ -282,13 +300,14 @@ module ma_frame_fsm #(
         end
 
         // -------------------------------------------------------------
-        // Inter-frame gap = BiSS-C "timeout state", counted in system-clock
-        // ticks (speed-independent absolute time).
+        // Inter-frame gap = BiSS-C "timeout state", counted on the
+        // oversampling tick grid (load value converted from system-clock
+        // ticks by the top level, preserving absolute-time semantics).
         MF_GAP: begin
           ma <= ma_idle_lvl;
           if (gap_cnt >= gap_ticks) begin
             st <= MF_IDLE;
-          end else begin
+          end else if (tick_ce) begin
             gap_cnt <= gap_cnt + 16'd1;
           end
         end
