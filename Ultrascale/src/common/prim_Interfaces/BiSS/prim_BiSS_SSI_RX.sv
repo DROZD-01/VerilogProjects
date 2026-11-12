@@ -137,12 +137,58 @@ module prim_BISS_SSI_RX
     .TickPulse_i  (TickPulse  ), // Tick pulse input
     .TickDelay_i  (TickDelay  ), // Line delay in tick pulses
     .MA_Edge_i    (           ), // Strobe at every MA edge
-    .MA_Level_i   (           ), // MA level after that edge
+    .MA_Level_i   (~SS_MA     ), // MA level after that edge
     .MA_Edge_o    (           ), // Strobe, delayed by 'TickDelay_i'
     .MA_Level_o   (           )  // MA level, same delay
   );
   
   
+  //--------------------------------------------------------------------
+  // TX frame controller / MA generator
+  //--------------------------------------------------------------------
   
+  prim_BiSS_SSI_MAGen
+  #(
+    //parameter  int MAX_FRAME_BITS = 75 , // 
+    .WIDTH_FRAMEBIT (  8 ), // Frame length [bits]
+    .WIDTH_INTFRGAP ( 16 ), // inter-frame gap [ovs ticks]
+    .WIDTH_LIMHALFM ( 16 ), // extra MA cycles before TX abort
+    .WIDTH_LIMTTIMO ( 24 ), // frame watchdog [ovs ticks], 0 = infinite
+    .WIDTH_EXTRTCDM ( 12 )  // CDM '1' start extension [ovs ticks]
+  )
+  MA_Generator
+  (
+    .RST_i               (RST_i                ), // 
+    .CLK_i               (CLK_i                ), // 
+    // Controls
+    .SET_InterfaceMode_i (                     ), // '1' - SSI, '0' - BiSS
+    .SET_FrameBits_i     (                     ), // Frame length [bits]
+    .SET_InterFrameGap_i (                     ), // inter-frame gap [ovs ticks]
+    .SET_Limit_HalfMA_i  (                     ), // extra MA cycles before TX abort
+    .SET_Limit_TickTO_i  (                     ), // frame watchdog [ovs ticks], 0 = infinite
+    .SET_Extra_TickCDM_i (                     ), // CDM '1' start extension [ovs ticks]
+    .SET_Lvl_MA_Idle     (                     ), // MA level while idle
+    .SET_FSM_Enable      (                     ), // global enable
+    // Clocking
+    .TickPulse_i         (TickPulse            ), // oversampling tick strobe
+    .HalfPulse_i         (                     ), // half-period boundary strobe
+    // Frame Requests
+    .REQ_Data            (                     ), // process-data frame request
+    .REQ_CDM             (                     ), // CDM frame request (has priority)
+    .CDM_Bit             (                     ), // CDM bit to encode into this frame
+    // Feedback
+    .RX_FrameDone_i      (                     ), // RX completed the frame (delayed!)
+    // Events
+    .FR_Load_o           (                     ), // 
+    .FR_Launch_o         (                     ), // 
+    .FR_Abort_o          (                     ), // 
+    .FR_End_o            (                     ), // 
+    .MA_RefEdge_o        (                     ), // Reference edge pulse (BiSS - 2nd rising MA edge; SSI - 1st MA edge)
+    .WatchdogExpired_o   (                     ), // 
+    // Status & I/O
+    .FR_Active_o         (                     ), // 
+    .FR_IsCDM_o          (                     ), // 
+    .MA_o                (SS_MA                )  // 
+  );
   
 endmodule
