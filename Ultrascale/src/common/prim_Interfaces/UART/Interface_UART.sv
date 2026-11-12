@@ -27,7 +27,7 @@ module Interface_UART
     parameter int  BAUD_UART_DEF   = 115200   , // UART baudrate (for fixed mode)
     parameter int  MAX_DW          = 8        , // Maximum data bits in a word
     parameter bit  MODE_FULLDUPLEX = 1'b1     , // Enable full-duplex mode
-    parameter bit  EN_RECEIVER     = 1'b1     , // Enable receiver circuitry generation
+    parameter bit  EN_RECEIVER     = 1'b0     , // Enable receiver circuitry generation
     parameter bit  EN_TRANSMITTER  = 1'b1     , // Enable transmitter circuitry generation
     parameter bit  MODE_RE_POL     = 1'b0     , // RE port polarity: '1' - active high / '0' - active low
     parameter bit  MODE_DE_POL     = 1'b1     , // DE port polarity: '1' - active high / '0' - active low
@@ -39,8 +39,8 @@ module Interface_UART
     parameter int  MODE_TYP_STP    = 1          // Maximum stop bits in a word
   )
   (
-    input  logic                        RST_i         , // System reset
-    input  logic                        CLK_i         , // System clock
+    input  logic                        RST_i             , // System reset
+    input  logic                        CLK_i             , // System clock
     // Data I/O
     input  logic                        DataValid_i       , // 
     input  logic [          MAX_DW-1:0] Data_i            , // 
@@ -189,67 +189,75 @@ module Interface_UART
   //------------------------------------------------------------------------------------------
   //  RX side gen
   //------------------------------------------------------------------------------------------
+  generate
+    if(EN_RECEIVER == 1'b1)
+    begin:rx_en
+      prim_UART_RX
+      #(
+        .OVERSAMPL     (OVERSAMPLE_N  ), // Oversampling mode (ticks per bit)
+        .MODE_VAR_WORD (MODE_VAR_WORD ), // '0' - Word size == MAX_DW, '1' - Word size <= MAX_DW, controlled by DataBits_i
+        .MAX_DW        (MAX_DW        ), // Maximum data bits in a word
+        .MODE_MSB      (MODE_MSB      ), // '0' - LSB (default), '1' - MSB
+        .MODE_VAR_PAR  (MODE_VAR_PAR  ), // '0' - Parity type == MODE_TYP_PAR, '1' - Parity type is controlled by ParityType_i
+        .MODE_TYP_PAR  (MODE_TYP_PAR  ), // Parity type (in fixed mode): '0' - N, '1' - E, '2' - O, '3' - M, '4' - S.
+        .MODE_VAR_STP  (MODE_VAR_STP  ), // '0' - Stop bits == MODE_TYP_STP, '1' - Stop bits <= 3, is controlled by StopBits_i
+        .MODE_TYP_STP  (MODE_TYP_STP  )  // Maximum stop bits in a word
+      )
+      RX
+      (
+        .RST_i         (RST_i         ), // System reset
+        .CLK_i         (CLK_i         ), // System clock
+        .RX_i          (RX_i          ), // Serial data input
+        .TickPulse_i   (TickPulse_RX  ), // Tick pulse input
+        .Resync_o      (TickResync_RX ), // 
+        .DataBits_i    (SB.DataBits   ), // 
+        .ParityType_i  (SB.ParityType ), // 
+        .StopBits_i    (SB.StopBits   ), // 
+        .Inhibit_i     (Inhibit_RX    ), // Inhibits work of the main SM
+        .Active_o      (RX_Active_o   ), // Main SM is NOT IDLE
+        .ParityError_o (ParityError_o ), // 
+        .FrameError_o  (FrameError_o  ), // 
+        .DataValid_o   (DataValid_o   ), // 
+        .Data_o        (Data_o        )  // 
+      );
+    end
+  endgenerate
   
-  prim_UART_RX
-  #(
-    .OVERSAMPL     (OVERSAMPLE_N  ), // Oversampling mode (ticks per bit)
-    .MODE_VAR_WORD (MODE_VAR_WORD ), // '0' - Word size == MAX_DW, '1' - Word size <= MAX_DW, controlled by DataBits_i
-    .MAX_DW        (MAX_DW        ), // Maximum data bits in a word
-    .MODE_MSB      (MODE_MSB      ), // '0' - LSB (default), '1' - MSB
-    .MODE_VAR_PAR  (MODE_VAR_PAR  ), // '0' - Parity type == MODE_TYP_PAR, '1' - Parity type is controlled by ParityType_i
-    .MODE_TYP_PAR  (MODE_TYP_PAR  ), // Parity type (in fixed mode): '0' - N, '1' - E, '2' - O, '3' - M, '4' - S.
-    .MODE_VAR_STP  (MODE_VAR_STP  ), // '0' - Stop bits == MODE_TYP_STP, '1' - Stop bits <= 3, is controlled by StopBits_i
-    .MODE_TYP_STP  (MODE_TYP_STP  )  // Maximum stop bits in a word
-  )
-  RX
-  (
-    .RST_i         (RST_i         ), // System reset
-    .CLK_i         (CLK_i         ), // System clock
-    .RX_i          (RX_i          ), // Serial data input
-    .TickPulse_i   (TickPulse_RX  ), // Tick pulse input
-    .Resync_o      (TickResync_RX ), // 
-    .DataBits_i    (SB.DataBits   ), // 
-    .ParityType_i  (SB.ParityType ), // 
-    .StopBits_i    (SB.StopBits   ), // 
-    .Inhibit_i     (Inhibit_RX    ), // Inhibits work of the main SM
-    .Active_o      (RX_Active_o   ), // Main SM is NOT IDLE
-    .ParityError_o (ParityError_o ), // 
-    .FrameError_o  (FrameError_o  ), // 
-    .DataValid_o   (DataValid_o   ), // 
-    .Data_o        (Data_o        )  // 
-  );
   
   //------------------------------------------------------------------------------------------
   //  TX side gen
   //------------------------------------------------------------------------------------------
-  
-  prim_UART_TX
-  #(
-    .OVERSAMPL     (OVERSAMPLE_N  ), // Oversampling mode (ticks per bit)
-    .MODE_VAR_WORD (MODE_VAR_WORD ), // '0' - Word size == MAX_DW, '1' - Word size <= MAX_DW, controlled by DataBits_i
-    .MAX_DW        (MAX_DW        ), // Maximum data bits in a word
-    .MODE_MSB      (MODE_MSB      ), // '0' - LSB (default), '1' - MSB
-    .MODE_VAR_PAR  (MODE_VAR_PAR  ), // '0' - Parity type == MODE_TYP_PAR, '1' - Parity type is controlled by ParityType_i
-    .MODE_TYP_PAR  (MODE_TYP_PAR  ), // Parity type (in fixed mode): '0' - N, '1' - E, '2' - O, '3' - M, '4' - S.
-    .MODE_VAR_STP  (MODE_VAR_STP  ), // '0' - Stop bits == MODE_TYP_STP, '1' - Stop bits <= 3, is controlled by StopBits_i
-    .MODE_TYP_STP  (MODE_TYP_STP  )  // Maximum stop bits in a word
-  )
-  TX
-  (
-    .RST_i        (RST_i          ), // System reset
-    .CLK_i        (CLK_i          ), // System clock
-    .TX_o         (TX_o           ), // Serial data output
-    .TickPulse_i  (TickPulse_TX   ), // Tick pulse input
-    .Resync_o     (TickResync_TX  ), // 
-    .DataBits_i   (SB.DataBits    ), // 
-    .ParityType_i (SB.ParityType  ), // 
-    .StopBits_i   (SB.StopBits    ), // 
-    .Inhibit_i    (Inhibit_TX     ), // Inhibits work of the main SM
-    .Active_o     (TX_Active_o    ), // Main SM is NOT IDLE
-    .BuffFull_o   (BuffFull_o     ), // Message pre-buffer is full
-    .DataValid_i  (DataValid_i    ), // 
-    .Data_i       (Data_i         )  // 
-  );
-  
+  generate
+    if(EN_TRANSMITTER == 1'b1)
+    begin:tx_en
+      prim_UART_TX 
+      #(
+        .OVERSAMPL     (OVERSAMPLE_N  ), // Oversampling mode (ticks per bit)
+        .MODE_VAR_WORD (MODE_VAR_WORD ), // '0' - Word size == MAX_DW, '1' - Word size <= MAX_DW, controlled by DataBits_i
+        .MAX_DW        (MAX_DW        ), // Maximum data bits in a word
+        .MODE_MSB      (MODE_MSB      ), // '0' - LSB (default), '1' - MSB
+        .MODE_VAR_PAR  (MODE_VAR_PAR  ), // '0' - Parity type == MODE_TYP_PAR, '1' - Parity type is controlled by ParityType_i
+        .MODE_TYP_PAR  (MODE_TYP_PAR  ), // Parity type (in fixed mode): '0' - N, '1' - E, '2' - O, '3' - M, '4' - S.
+        .MODE_VAR_STP  (MODE_VAR_STP  ), // '0' - Stop bits == MODE_TYP_STP, '1' - Stop bits <= 3, is controlled by StopBits_i
+        .MODE_TYP_STP  (MODE_TYP_STP  )  // Maximum stop bits in a word
+      )
+      TX
+      (
+        .RST_i        (RST_i          ), // System reset
+        .CLK_i        (CLK_i          ), // System clock
+        .TX_o         (TX_o           ), // Serial data output
+        .TickPulse_i  (TickPulse_TX   ), // Tick pulse input
+        .Resync_o     (TickResync_TX  ), // 
+        .DataBits_i   (SB.DataBits    ), // 
+        .ParityType_i (SB.ParityType  ), // 
+        .StopBits_i   (SB.StopBits    ), // 
+        .Inhibit_i    (Inhibit_TX     ), // Inhibits work of the main SM
+        .Active_o     (TX_Active_o    ), // Main SM is NOT IDLE
+        .BuffFull_o   (BuffFull_o     ), // Message pre-buffer is full
+        .DataValid_i  (DataValid_i    ), // 
+        .Data_i       (Data_i         )  // 
+      );
+    end
+  endgenerate
   
 endmodule
