@@ -248,14 +248,6 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_CRC_Calculator/prim_CRC_Calculator.sv">
-        <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
       <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/gen4/rx_deser_fsm.sv">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
@@ -304,6 +296,13 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_DeserRX.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_LineDelay.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -319,6 +318,13 @@
         </FileInfo>
       </File>
       <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_Pipeline.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../src/common/prim_CRC_Calculator/prim_CRC_Calculator.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
