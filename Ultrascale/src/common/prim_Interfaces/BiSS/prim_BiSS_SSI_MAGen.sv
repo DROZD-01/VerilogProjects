@@ -22,7 +22,6 @@
 
 module prim_BiSS_SSI_MAGen
   #(
-    //parameter  int MAX_FRAME_BITS = 75 , // 
     parameter int WIDTH_FRAMEBIT =   8 , // Frame length [bits]
     parameter int WIDTH_INTFRGAP =  16 , // inter-frame gap [ovs ticks]
     parameter int WIDTH_LIMHALFM =  16 , // extra MA cycles before TX abort
@@ -39,15 +38,15 @@ module prim_BiSS_SSI_MAGen
     input  logic [WIDTH_LIMHALFM-1:0] SET_Limit_HalfMA_i  , // extra MA cycles before TX abort
     input  logic [WIDTH_LIMTTIMO-1:0] SET_Limit_TickTO_i  , // frame watchdog [ovs ticks], 0 = infinite
     input  logic [WIDTH_EXTRTCDM-1:0] SET_Extra_TickCDM_i , // CDM '1' start extension [ovs ticks]
-    input  logic                      SET_Lvl_MA_Idle     , // MA level while idle
-    input  logic                      SET_FSM_Enable      , // global enable
+    input  logic                      SET_Lvl_MA_Idle_i   , // MA level while idle
+    input  logic                      SET_FSM_Enable_i    , // global enable
     // Clocking
     input  logic                      TickPulse_i         , // oversampling tick strobe
     input  logic                      HalfPulse_i         , // half-period boundary strobe
     // Frame Requests
-    input  logic                      REQ_Data            , // process-data frame request
-    input  logic                      REQ_CDM             , // CDM frame request (has priority)
-    input  logic                      CDM_Bit             , // CDM bit to encode into this frame
+    input  logic                      REQ_Data_i          , // process-data frame request
+    input  logic                      REQ_CDM_i           , // CDM frame request (has priority)
+    input  logic                      CDM_Bit_i           , // CDM bit to encode into this frame
     // Feedback
     input  logic                      RX_FrameDone_i      , // RX completed the frame (delayed!)
     // Events
@@ -90,9 +89,9 @@ module prim_BiSS_SSI_MAGen
   always_comb
   begin
     MA_NextLevel = ~MA_o;
-    FR_Accept    = (Main_SM == MF_IDLE) && SET_FSM_Enable && (REQ_Data || REQ_CDM);
+    FR_Accept    = (Main_SM == MF_IDLE) && SET_FSM_Enable_i && (REQ_Data_i || REQ_CDM_i);
     FR_Load_o    = FR_Accept;
-    FR_IsCDM_o   = FR_Accept && REQ_CDM;
+    FR_IsCDM_o   = FR_Accept && REQ_CDM_i;
   end
   
   //--------------------------------------------------------------------
@@ -110,7 +109,7 @@ module prim_BiSS_SSI_MAGen
   
   always_comb
   begin
-    Edge_Now      = (Main_SM == MF_RUN) && HalfPulse_i && ~(RX_Done_Latch && (MA_o == SET_Lvl_MA_Idle));
+    Edge_Now      = (Main_SM == MF_RUN) && HalfPulse_i && ~(RX_Done_Latch && (MA_o == SET_Lvl_MA_Idle_i));
     Edge_Launch   = Edge_Now && MA_Launched ;
     Edge_Positive = Edge_Now && MA_NextLevel;
     FR_Launch_o   = Edge_Launch;
@@ -158,7 +157,7 @@ module prim_BiSS_SSI_MAGen
       case(Main_SM)
         MF_IDLE    :
         begin
-          MA_o <= SET_Lvl_MA_Idle;
+          MA_o <= SET_Lvl_MA_Idle_i;
           
           if(FR_Accept)
           begin
@@ -169,7 +168,7 @@ module prim_BiSS_SSI_MAGen
             Limit_TickTO_Count  <=  'd0;
             RX_Done_Latch       <= 1'b0;
             
-            if(REQ_CDM && CDM_Bit && (SET_Extra_TickCDM_i != 'd0))
+            if(REQ_CDM_i && CDM_Bit_i && (SET_Extra_TickCDM_i != 'd0))
             begin
               Extra_TickCDM_Count <= SET_Extra_TickCDM_i;
               Main_SM             <= MF_CDM_DLY;
@@ -184,7 +183,7 @@ module prim_BiSS_SSI_MAGen
         // counted on the oversampling tick grid.
         MF_CDM_DLY :
         begin
-          MA_o <= SET_Lvl_MA_Idle;
+          MA_o <= SET_Lvl_MA_Idle_i;
           
           if(Extra_TickCDM_Count != 'd0)
             if(TickPulse_i)
@@ -212,7 +211,7 @@ module prim_BiSS_SSI_MAGen
             
             if(HalfPulse_i)
             begin
-              if(RX_Done_Latch && (MA_o == SET_Lvl_MA_Idle))
+              if(RX_Done_Latch && (MA_o == SET_Lvl_MA_Idle_i))
               begin
                 // ---- clean stop: MA already at idle level ----
                 // (no MA toggle at this boundary; the boundary strobe
@@ -261,7 +260,7 @@ module prim_BiSS_SSI_MAGen
         // ticks by the top level, preserving absolute-time semantics).
         MF_GAP     :
         begin
-          MA_o <= SET_Lvl_MA_Idle;
+          MA_o <= SET_Lvl_MA_Idle_i;
           
           if(InterFrameGap_Count < SET_InterFrameGap_i)
             if(TickPulse_i)

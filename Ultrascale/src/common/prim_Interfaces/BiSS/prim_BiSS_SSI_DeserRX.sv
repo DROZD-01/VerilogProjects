@@ -37,9 +37,9 @@ module prim_BiSS_SSI_DeserRX
     // Controls
     input  logic                      SET_InterfaceMode_i , // '1' - SSI, '0' - BiSS
     input  logic                      SET_EN_AutoLD_i     , // per-frame automatic line-delay tracking
-    input  logic                      SET_EN_BiSS_CRC     , // 
-    input  logic                      SET_CRC_InclCDS     , // 
-    input  logic                      SET_SSI_LenMode     , // 
+    input  logic                      SET_EN_BiSS_CRC_i   , // 
+    input  logic                      SET_CRC_InclCDS_i   , // 
+    input  logic                      SET_SSI_LenMode_i   , // 
     input  logic [  WIDTH_CDSBIT-1:0] SET_CDSBits_i       , // 
     input  logic [  WIDTH_PDUBIT-1:0] SET_PDUBits_i       , // 
     input  logic [WIDTH_FRAMEBIT-1:0] SET_FrameBits_i     , // 
@@ -54,10 +54,10 @@ module prim_BiSS_SSI_DeserRX
     // Output
     output logic                      RX_FrameDone_o      , // RX completed the frame
     output logic                      Recv_Valid_o        , // 
-    output logic [    MAX_PDUBIT-1:0] Recv_PDULength_o    , // 
-    output logic [  WIDTH_PDUBIT-1:0] Recv_PDUBits_o      , // 
-    output logic [    MAX_CDSBIT-1:0] Recv_CDSBits_o      , // 
-    output logic [  WIDTH_PDUBIT-1:0] Recv_SSIPadding_o   , // 
+    output logic [    MAX_PDUBIT-1:0] Recv_PDUBits_o      , // process data (right-aligned)
+    output logic [  WIDTH_PDUBIT-1:0] Recv_PDULength_o    , // effective PDU length
+    output logic [  WIDTH_PDUBIT-1:0] Recv_SSIPadding_o   , // SSI-AUTO leading pad zeros
+    output logic [    MAX_CDSBIT-1:0] Recv_CDSBits_o      , // received CDS bits
     // Status
     output logic                      Err_NoStart_o       , // 
     output logic                      Err_NoMarker_o      , // 
@@ -95,7 +95,7 @@ module prim_BiSS_SSI_DeserRX
   begin
     Index_PDU_Lo = SET_CDSBits_i + 1'd1;
     Index_PDU_Hi = Index_PDU_Lo + SET_PDUBits_i - 1'd1;
-    TrailingBits = (~SET_InterfaceMode_i && SET_EN_BiSS_CRC)? VAL_CRCBIT : 'd0;
+    TrailingBits = (~SET_InterfaceMode_i && SET_EN_BiSS_CRC_i)? VAL_CRCBIT : 'd0;
   end
   
   
@@ -107,8 +107,8 @@ module prim_BiSS_SSI_DeserRX
   logic                  CRC_Valid;
   logic [VAL_CRCBIT-1:0] CRC_Out  ;
 
-  assign CRC_Valid  = (Main_SM == RX_RUN) && SL_Sample_i && ~SET_InterfaceMode_i && SET_EN_BiSS_CRC &&
-                      (RX_Bit_Count >= (SET_CRC_InclCDS ? 'd1 : Index_PDU_Lo)) && (RX_Bit_Count <= Index_PDU_Hi);
+  assign CRC_Valid  = (Main_SM == RX_RUN) && SL_Sample_i && ~SET_InterfaceMode_i && SET_EN_BiSS_CRC_i &&
+                      (RX_Bit_Count >= (SET_CRC_InclCDS_i ? 'd1 : Index_PDU_Lo)) && (RX_Bit_Count <= Index_PDU_Hi);
 
   prim_CRC_Calculator 
   #(
@@ -157,10 +157,10 @@ module prim_BiSS_SSI_DeserRX
       RX_Skip_Count     <=  'd0;
       RX_FrameDone_o    <= 1'b0;
       Recv_Valid_o      <= 1'b0;
-      Recv_PDULength_o  <=  'd0;
       Recv_PDUBits_o    <=  'd0;
-      Recv_CDSBits_o    <=  'd0;
+      Recv_PDULength_o  <=  'd0;
       Recv_SSIPadding_o <=  'd0;
+      Recv_CDSBits_o    <=  'd0;
       Err_NoStart_o     <= 1'b0;
       Err_NoMarker_o    <= 1'b0;
       Err_BadCRC_o      <= 1'b0;
@@ -206,12 +206,95 @@ module prim_BiSS_SSI_DeserRX
         
         RX_SEARCH     :
         begin
-          
+          if(~FR_Active_i)
+          begin
+            // no START bit within TX margin
+            Err_NoStart_o     <= 1'b1;
+            Main_SM           <= RX_IDLE;
+          end
+          else if(SL_Sample_i)
+          begin
+            if(RX_Skip_Count != 'd0)
+              RX_Skip_Count <= RX_Skip_Count - 1'd1; // BiSS manual: skip preamble+ACK
+            else if(~SET_InterfaceMode_i)
+            begin
+              if(SL_Synched_i) // START bit ('1') locked
+              begin
+                Main_SM           <= RX_RUN;
+                RX_ShiftReg       <= {RX_ShiftReg[MAX_FRAMEBIT-2:0], SL_Synched_i};
+                RX_Bit_Count      <=  'd1;
+              end
+              // '0': keep hunting (ACK low phase / sensor processing delay)
+            end
+            else
+            begin
+              // SSI: no START bit, the first sampled bit is bit 0
+              RX_ShiftReg       <= {RX_ShiftReg[MAX_FRAMEBIT-2:0], SL_Synched_i};
+              RX_Bit_Count      <=  'd1;
+              RX_PrevBit        <= SL_Synched_i;
+              if(SET_SSI_LenMode_i)
+              begin
+                if(SL_Synched_i)
+                  RX_MSB_Detected   <= 1'b0;
+                else
+                  RX_Padding_Count  <=  'd1;
+              end
+              
+              // single-bit frames jump directly to the marker check
+              Main_SM <= (~SET_SSI_LenMode_i && (SET_FrameBits_i == 'd1))? RX_M1 : RX_RUN;
+            end
+          end
         end
         
         RX_RUN        :
         begin
-          
+          if(~FR_Active_i)
+          begin
+            // frame truncated after lock
+            Err_NoMarker_o    <= 1'b1;
+            Main_SM           <= RX_IDLE;
+          end
+          else if(SL_Sample_i)
+          begin
+            if(~SET_InterfaceMode_i)
+            begin
+              RX_ShiftReg       <= {RX_ShiftReg[MAX_FRAMEBIT-2:0], SL_Synched_i};
+              RX_Bit_Count      <= RX_Bit_Count + 1'd1;
+              if(RX_Bit_Count == (SET_FrameBits_i - 'd1)) Main_SM <= RX_DONE;
+            end
+            else if(~SET_SSI_LenMode_i)
+            begin
+              RX_ShiftReg       <= {RX_ShiftReg[MAX_FRAMEBIT-2:0], SL_Synched_i};
+              RX_Bit_Count      <= RX_Bit_Count + 1'd1;
+              RX_PrevBit        <= SL_Synched_i;
+              if(RX_Bit_Count == (SET_FrameBits_i - 'd1)) Main_SM <= RX_M1;
+            end
+            else
+            begin
+              // ---- SSI AUTO: monoflop marker = '1' followed by '0' ----
+              if((RX_Bit_Count >= 'd1) && RX_PrevBit && !SL_Synched_i)
+                Main_SM           <= RX_DONE; // previous bit was the marker, the current '0' is not shifted
+              else if(RX_Bit_Count >= WIDTH_FRAMEBIT'(MAX_FRAMEBIT))
+              begin
+                Err_NoMarker_o    <= 1'b1; // barrel full, no marker found
+                Main_SM           <= RX_DONE;
+              end
+              else
+              begin
+                RX_ShiftReg       <= {RX_ShiftReg[MAX_FRAMEBIT-2:0], SL_Synched_i};
+                RX_Bit_Count      <= RX_Bit_Count + 1'd1;
+                RX_PrevBit        <= SL_Synched_i;
+                
+                if(~RX_MSB_Detected)
+                begin
+                  if(SL_Synched_i)
+                    RX_MSB_Detected   <= 1'b1;
+                  else
+                    RX_Padding_Count  <= RX_Padding_Count + 1'd1;
+                end
+              end
+            end
+          end
         end
         
         RX_M1         : // SSI-PROG: expect the monoflop end-of-data marker '1'
@@ -251,7 +334,52 @@ module prim_BiSS_SSI_DeserRX
         
         RX_DONE       :
         begin
-          
+          if(!RX_Done)
+          begin
+            // 'rx_sr' settled in the previous cycle -> latch results now
+            RX_Done           <= 1'b1;
+            RX_FrameDone_o    <= 1'b1;
+            Recv_Valid_o      <= 1'b1;
+            
+            if(~SET_InterfaceMode_i)
+            begin
+              Recv_PDUBits_o    <= MAX_PDUBIT'((RX_ShiftReg >> TrailingBits) & {{(MAX_FRAMEBIT-MAX_PDUBIT){1'b0}}, pdu_mask_f(SET_PDUBits_i)});
+              Recv_PDULength_o  <= SET_PDUBits_i;
+              Recv_SSIPadding_o <= 'd0;
+              Recv_CDSBits_o    <= MAX_CDSBIT'((RX_ShiftReg >> (TrailingBits + SET_PDUBits_i)) & {{(MAX_FRAMEBIT-MAX_CDSBIT){1'b0}}, cds_mask_f(SET_CDSBits_i)});
+              
+              if(SET_EN_BiSS_CRC_i && (RX_ShiftReg[VAL_CRCBIT-1:0] == CRC_Out))
+                Err_BadCRC_o <= 1'b1;
+            end
+            else if(~SET_SSI_LenMode_i)
+            begin
+              Recv_PDUBits_o    <= RX_ShiftReg[MAX_PDUBIT-1:0] & pdu_mask_f(SET_PDUBits_i);
+              Recv_PDULength_o  <= SET_PDUBits_i;
+              Recv_SSIPadding_o <= 'd0;
+              Recv_CDSBits_o    <= 'd0;
+            end
+            else
+            begin
+              // SSI AUTO: drop the marker bit (last shifted '1'), strip the
+              // leading pad zeros; everything in between is the payload.
+              if((RX_Bit_Count - RX_Padding_Count - 1'd1) > MAX_PDUBIT)
+              begin
+                Err_NoMarker_o    <= 1'b1;
+                Recv_PDUBits_o    <=  'd0;
+                Recv_PDULength_o  <=  'd0;
+              end
+              else
+              begin
+                Recv_PDUBits_o    <=  MAX_PDUBIT'((RX_ShiftReg >> 1) & {{(MAX_FRAMEBIT-MAX_PDUBIT){1'b0}}, pdu_mask_f(RX_Bit_Count - RX_Padding_Count - 1'd1)});
+                Recv_PDULength_o  <= (RX_Bit_Count - RX_Padding_Count - 1'd1);
+              end
+              Recv_SSIPadding_o <= RX_Padding_Count;
+              Recv_CDSBits_o    <= 'd0;
+              
+            end
+          end
+          else if (~FR_Active_i)
+            Main_SM <= RX_IDLE;
         end
         
         default       : Main_SM <= RX_IDLE;
