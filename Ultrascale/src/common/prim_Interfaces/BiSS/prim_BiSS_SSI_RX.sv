@@ -22,11 +22,13 @@
 module prim_BISS_SSI_RX
   #(
     parameter  real FREQ_SYSCLK     = 100e6  , // Main system clock frequency, Hz
-    parameter  bit  MODE_BAUDCTRL   = 1'b0   , // Baudrate control mode: '1' - fixed, '0' - variable
+    parameter  bit  MODE_BAUDCTRL   = 1'b1   , // Baudrate control mode:'0' - fixed tick rate, '1' - variable tick rate
     parameter  int  BAUD_FIXED_DEF  = 500000 , // UART baudrate (for fixed mode)
     parameter  int  MAX_PDUBIT      = 32     , // Widest process-data payload [bits]
     parameter  int  MAX_CDSBIT      =  1     , // Widest CDS field [bits]
     parameter  int  VAL_CRCBIT      =  6     , // BiSS-C CRC width [bits]
+    parameter  int  WIDTH_CDADDR    =  7     , // 
+    parameter  int  WIDTH_CDDATA    =  8     , // register data payload bits
     parameter  int  MAX_MA_DELAY    =  4     , // Timeout value (full MA cycle periods)
     parameter  bit  EN_ERR_LAT      = 1'b0   , // Enable error latching 
     parameter  bit  EN_STS_CNT      = 1'b0   , // Enable frame and error counters
@@ -81,9 +83,19 @@ module prim_BISS_SSI_RX
     output logic                      ERR_BadCRC_o         , // 
     output logic                      ERR_WdExp_o          , // 
     output logic                      ERR_Measure_o        , // 
-    // Output
-    output logic                      DataValid_o          , // 
-    output logic [    MAX_PDUBIT-1:0] Data_o               , // 
+    output logic                      ERR_CDM_o            , // 
+    // Output, Data channel
+    output logic                      Recv_Valid_o         , // 
+    output logic [    MAX_PDUBIT-1:0] Recv_PDUBits_o       , // 
+    output logic [  WIDTH_PDUBIT-1:0] Recv_PDULength_o     , // 
+    output logic [  WIDTH_PDUBIT-1:0] Recv_SSIPadding_o    , // 
+    // Input/Output, CD channel
+    input  logic                      COMM_Request_i       , // 
+    input  logic                      COMM_RdWr_i          , // 
+    input  logic [  WIDTH_CDADDR-1:0] COMM_Addr_i          , // 
+    input  logic [  WIDTH_CDDATA-1:0] COMM_Data_i          , // 
+    output logic                      COMM_Reply_o         , // 
+    output logic [  WIDTH_CDDATA-1:0] COMM_Data_o          , // 
     // Input
     output logic                      SS_MA                , // Master -> Slave clock line
     input  logic                      SS_SL                  // Master <- Slave data line
@@ -114,7 +126,6 @@ module prim_BISS_SSI_RX
   logic [WIDTH_INTFRGAP-1:0] SetR_InterFrameGap  ; // 
   logic [WIDTH_LIMHALFM-1:0] SetR_Limit_HalfMA   ; // 
   logic [WIDTH_LIMTTIMO-1:0] SetR_Limit_TickTO   ; // 
-  logic [ WIDTH_TICKDEL-1:0] SetR_TickDelay      ; // 
   logic [WIDTH_EXTRTCDM-1:0] SetR_Extra_TickCDM  ; // 
   
   
@@ -145,10 +156,6 @@ module prim_BISS_SSI_RX
   
   // RX deserializer / CRC
   logic                      RX_FrameDone     ; // 
-  logic                      Recv_Valid       ; // 
-  logic [    MAX_PDUBIT-1:0] Recv_PDUBits     ; // 
-  logic [  WIDTH_PDUBIT-1:0] Recv_PDULength   ; // 
-  logic [  WIDTH_PDUBIT-1:0] Recv_SSIPadding  ; // 
   logic [    MAX_CDSBIT-1:0] Recv_CDSBits     ; // 
   logic                      Err_NoStart      ; // 
   logic                      Err_NoMarker     ; // 
@@ -168,7 +175,11 @@ module prim_BISS_SSI_RX
   logic                      StartPending     ; // 
   logic                      REQ_CDM          ; // 
   logic                      CDM_Bit          ; // 
+  
+  
+  // CDM sequencer interconnect
   logic                      CDM_Busy         ; // 
+  logic                      Err_CDM          ; // 
   
   // Frame geometry
   logic [WIDTH_FRAMEBIT-1:0] Set_FrameBits    ; // 
@@ -209,7 +220,6 @@ module prim_BISS_SSI_RX
       SetR_InterFrameGap  <=  'd0;
       SetR_Limit_HalfMA   <=  'd0;
       SetR_Limit_TickTO   <=  'd0;
-      SetR_TickDelay      <=  'd0;
       SetR_Extra_TickCDM  <=  'd0;
     end
     else if(FR_Load)
@@ -230,7 +240,6 @@ module prim_BISS_SSI_RX
       SetR_InterFrameGap  <= SET_InterFrameGap_i  ; // 
       SetR_Limit_HalfMA   <= SET_Limit_HalfMA_i   ; // 
       SetR_Limit_TickTO   <= SET_Limit_TickTO_i   ; // 
-      SetR_TickDelay      <= SET_TickDelay_i      ; // 
       SetR_Extra_TickCDM  <= SET_Extra_TickCDM_i  ; // 
     end
   end
@@ -306,6 +315,8 @@ module prim_BISS_SSI_RX
     .FREQ_SYSCLK (FREQ_SYSCLK    ), // System clock frequency (in Hz)
     .MODE_FIXED  (MODE_BAUDCTRL  ), // Generation mode:'1' - fixed tick rate, '0' - variable tick rate
     .TICKR_FIXED (BAUD_FIXED_DEF ), // Target tickrate (used in fixed mode)
+    .BV_NUM      (BV_NUM         ), // Number of entries in BAUD_VALUES
+    .BAUD_VAL    (BAUD_VAL       ), // 
     .OVERSAMPLE  (OVERSAMPLE     )  // Oversampling mode (ticks per bit)
   )
   TickGen
@@ -431,7 +442,7 @@ module prim_BISS_SSI_RX
       StartPending <= 1'b1;
   end
   
-  assign REQ_Data = SET_FSM_Enable_i && (SET_FSM_Continuous_i || StartPending) && !CDM_Busy;
+  assign REQ_Data = SetR_FSM_Enable && (SetR_FSM_Continuous || StartPending) && !CDM_Busy;
   
   //--------------------------------------------------------------------
   // RX deserializer: start-bit search, bit counting, SSI monoflop marker
@@ -468,10 +479,10 @@ module prim_BISS_SSI_RX
     .SL_Synched_i        (SL_Sync           ), // SL line value at the strobe
     // Output
     .RX_FrameDone_o      (RX_FrameDone      ), // RX completed the frame
-    .Recv_Valid_o        (Recv_Valid        ), // 
-    .Recv_PDUBits_o      (Recv_PDUBits      ), // 
-    .Recv_PDULength_o    (Recv_PDULength    ), // 
-    .Recv_SSIPadding_o   (Recv_SSIPadding   ), // 
+    .Recv_Valid_o        (Recv_Valid_o      ), // 
+    .Recv_PDUBits_o      (Recv_PDUBits_o    ), // 
+    .Recv_PDULength_o    (Recv_PDULength_o  ), // 
+    .Recv_SSIPadding_o   (Recv_SSIPadding_o ), // 
     .Recv_CDSBits_o      (Recv_CDSBits      ), // 
     // Status
     .Err_NoStart_o       (Err_NoStart       ), // 
@@ -479,12 +490,43 @@ module prim_BISS_SSI_RX
     .Err_BadCRC_o        (Err_BadCRC        )  // 
   );
   
-  always_comb
-  begin
-    DataValid_o = Recv_Valid  ;
-    Data_o      = Recv_PDUBits;
-  end
   
+  //--------------------------------------------------------------------
+  // CDM register-access sequencer
+  //--------------------------------------------------------------------
+  
+  prim_BiSS_SSI_CDMCtrl
+  #(
+    .MAX_CDSBIT     (MAX_CDSBIT   ), // Widest CDS field [bits]
+    .WIDTH_CDADDR   (WIDTH_CDADDR ), // 
+    .WIDTH_CDDATA   (WIDTH_CDDATA )  // register data payload bits
+  )
+  CDM_Sequencer
+  (
+    .RST_i               (RST_i             ), // 
+    .CLK_i               (CLK_i             ), // 
+    .SET_FSM_Enable_i    (SetR_FSM_Enable   ), // global enable
+    // Register access request (pulse; sampled when idle)
+    .COMM_Request_i      (COMM_Request_i    ), //
+    .COMM_RdWr_i         (COMM_RdWr_i       ), // 1 = write
+    .COMM_Addr_i         (COMM_Addr_i       ), //
+    .COMM_Data_i         (COMM_Data_i       ), //
+    // Frame events from the frame controller 
+    .FR_Load_i           (FR_Load           ), // pulse: a frame was accepted
+    .FR_IsCDM_i          (FR_IsCDM          ), // level: the accepted frame is ours
+    .FR_Abort_i          (FR_Abort          ), // pulse: frame aborted
+    .FR_End_i            (FR_End            ), // pulse: frame finished (or aborted)
+    // RX result of the finished frame (latched by the RX before frame_end)
+    .Recv_CDSBits_i      (Recv_CDSBits      ), // received CDS bits
+    // Towards the frame controller
+    .REQ_CDM_o           (REQ_CDM           ), // CDM frame request (has priority)
+    .CDM_Bit_o           (CDM_Bit           ), // CDM bit to encode into this frame
+    // Status
+    .CDM_Busy_o          (CDM_Busy          ), // CDM access is in progress
+    .COMM_Reply_o        (COMM_Reply_o      ), // pulse: COMM_Data_o valid (read)
+    .COMM_Data_o         (COMM_Data_o       ), // 
+    .Err_CDM_o           (Err_CDM           )  // pulse: access aborted
+  );
   
   //--------------------------------------------------------------------
   // Sticky status / counters / data outputs
@@ -502,6 +544,7 @@ module prim_BISS_SSI_RX
           ERR_BadCRC_o   <= 1'b0;
           ERR_WdExp_o    <= 1'b0;
           ERR_Measure_o  <= 1'b0;
+          ERR_CDM_o      <= 1'b0;
         end
         else
         begin
@@ -510,6 +553,7 @@ module prim_BISS_SSI_RX
           if(Err_BadCRC   ) ERR_BadCRC_o   <= 1'b1;
           if(Err_WdExp    ) ERR_WdExp_o    <= 1'b1;
           if(Meas_Error   ) ERR_Measure_o  <= 1'b1;
+          if(Err_CDM      ) ERR_CDM_o      <= 1'b1;
         end
       end
     end // Pulse errors
@@ -522,6 +566,7 @@ module prim_BISS_SSI_RX
         ERR_BadCRC_o   = Err_BadCRC   ;
         ERR_WdExp_o    = Err_WdExp    ;
         ERR_Measure_o  = Meas_Error   ;
+        ERR_CDM_o      = Err_CDM      ;
       end
     end
   endgenerate
