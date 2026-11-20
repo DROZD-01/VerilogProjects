@@ -48,13 +48,16 @@
   
 module Interface_SPI_Slave
   #(
-    parameter  int  MAX_DW        =   16 , // Maximum SPI packet size
-    parameter  bit  DEFAULT_CS    = 1'b1 , // Default CS   value on reset
-    parameter  bit  DEFAULT_SCLK  = 1'b0 , // Default SCLK value on reset
-    parameter  bit  MODE_VAR_WORD = 1'b0 , // '0' - Word size == MAX_DW, '1' - Word size <= MAX_DW, controlled by DataBits_i
-    parameter  bit  MODE_MSB      = 1'b0 , // '0' - LSB (default), '1' - MSB
-    
-    localparam int  MAX_DBW      = $clog2(MAX_DW + 1)
+    parameter  int         MAX_DW        =    8 , // Maximum SPI packet size
+    parameter  bit         DEFAULT_SCLK  = 1'b0 , // Default SCLK value on reset
+    parameter  bit         MODE_VAR_WORD = 1'b0 , // '0' - Word size == MAX_DW, '1' - Word size <= MAX_DW, controlled by SET_Data_DW_i
+    parameter  bit         MODE_VAR_SPIM = 1'b0 , // '0' - Fixed SPI mode (MODE_TYP_SPIM), '1' - controlled by SET_SPI_Mode_i
+    parameter  logic [2:0] MODE_TYP_SPIM = 3'd0 , // Fixed mode SPI mode value
+    parameter  bit         MODE_VAR_CS   = 1'b0 , // '0' - Fixed CS  mode (MODE_TYP_CS), '1' - controlled by SET_CS_Pol_i
+    parameter  bit         MODE_TYP_CS   = 1'b1 , // Fixed CS polarity: '0' - Active LOW, '1' - Active HIGH
+    parameter  bit         MODE_VAR_MSB  = 1'b0 , // '0' - Fixed MSB mode (MODE_TYP_MSB), '1' - controlled by SET_MSB_i
+    parameter  bit         MODE_TYP_MSB  = 1'b1 , // Fixed bit order mode: '0' - LSB (default), '1' - MSB
+    localparam int         MAX_DBW       = $clog2(MAX_DW + 1)
   )
   (
     // Clocking
@@ -66,11 +69,11 @@ module Interface_SPI_Slave
     input  logic               MOSI_i            , // 
     output logic               MISO_o            , // 
     // Settings
-    input  logic               SET_Valid         , // Settings Valid (Can be set to '1', will just autoupdate between transfers)
-    input  logic [        2:0] SET_SPI_Mode      , // SPI mode (see table)
-    input  logic               SET_MSB           , // '0' - LSB first, '1' - MSB first
-    input  logic               SET_CS_Pol        , // CS polarity: '0' - Active LOW, '1' - Active HIGH
-    input  logic [MAX_DBW-1:0] SET_Data_DW       , // Outgoing (MISO) packet data width
+    input  logic               SET_Valid_i       , // Settings Valid (Can be set to '1', will just autoupdate between transfers)
+    input  logic [        2:0] SET_SPI_Mode_i    , // SPI mode (see table)
+    input  logic               SET_MSB_i         , // '0' - LSB first, '1' - MSB first
+    input  logic               SET_CS_Pol_i      , // CS polarity: '0' - Active LOW, '1' - Active HIGH
+    input  logic [MAX_DBW-1:0] SET_Data_DW_i     , // Outgoing (MISO) packet data width
     // Parallel I/O
     input  logic               Valid_i           , // Outgoing (MISO) packet data valid
     input  logic [ MAX_DW-1:0] Data_i            , // Outgoing (MISO) packet data
@@ -104,9 +107,10 @@ module Interface_SPI_Slave
   } srego_t;
   srego_t OData;
   
-  logic SET_Preload ; // '1' - preload needed
-  logic SET_RX_Edge ; // '0' - posedge, '1' - negedge
-  logic SET_TX_Edge ; // '0' - posedge, '1' - negedge
+  logic [2:0] SET_SPI_Mode  ; // Routing
+  logic       SET_Preload   ; // '1' - preload needed
+  logic       SET_RX_Edge   ; // '0' - posedge, '1' - negedge
+  logic       SET_TX_Edge   ; // '0' - posedge, '1' - negedge
   
   always_comb
   begin:spimode_comb
@@ -123,31 +127,84 @@ module Interface_SPI_Slave
     endcase
   end
   
-  typedef struct
-  {
-    logic               MSB     ;
-    logic               Preload ;
-    logic               RX_Edge ;
-    logic               TX_Edge ;
-    logic               CS_POL  ;
-    logic [MAX_DBW-1:0] DATAW   ;
-  } settings_t;
-  settings_t SB; // Buffered settings
+  // Buffered settings
+  logic               SB_MSB     ;
+  logic               SB_Preload ;
+  logic               SB_RX_Edge ;
+  logic               SB_TX_Edge ;
+  logic               SB_CS_POL  ;
+  logic [MAX_DBW-1:0] SB_DATAW   ;
   
-  always_ff @(posedge CLK_i)
-  begin
-    if(RST_i)
-      SB <= '{default:0};
-    else if(SET_Valid & ~CS_Active)
-      SB <= '{
-              MSB     : SET_MSB     , //
-              Preload : SET_Preload , //
-              RX_Edge : SET_RX_Edge , //
-              TX_Edge : SET_TX_Edge , //
-              CS_POL  : SET_CS_Pol  , //
-              DATAW   : SET_Data_DW   // 
-            };
-  end
+  
+  generate
+    if(MODE_VAR_WORD)
+    begin
+      always_ff @(posedge CLK_i)
+      begin
+        if(RST_i)
+          SB_DATAW <= '{default:0};
+        else if(SET_Valid_i & ~CS_Active)
+          SB_DATAW <= SET_Data_DW_i;
+      end
+    end
+    else
+    begin
+      assign SB_DATAW = MAX_DBW'(MAX_DW);
+    end
+  endgenerate
+  
+  generate
+    if(MODE_VAR_SPIM)
+    begin
+      assign SET_SPI_Mode = SET_SPI_Mode_i;
+      always_ff @(posedge CLK_i)
+      begin
+        if(RST_i)
+          {SB_Preload, SB_RX_Edge, SB_TX_Edge} <= '{default:0};
+        else if(SET_Valid_i & ~CS_Active)
+          {SB_Preload, SB_RX_Edge, SB_TX_Edge} <= {SET_Preload, SET_RX_Edge, SET_TX_Edge};
+      end
+    end
+    else
+    begin
+      assign SET_SPI_Mode = MODE_TYP_SPIM; // 
+      assign {SB_Preload, SB_RX_Edge, SB_TX_Edge} = {SET_Preload, SET_RX_Edge, SET_TX_Edge};
+    end
+  endgenerate
+  
+  generate
+    if(MODE_VAR_CS)
+    begin
+      always_ff @(posedge CLK_i)
+      begin
+        if(RST_i)
+          SB_CS_POL <= 1'b0;
+        else if(SET_Valid_i & ~CS_Active)
+          SB_CS_POL <= SET_CS_Pol_i;
+      end
+    end
+    else
+    begin
+      assign SB_CS_POL = MODE_TYP_CS;
+    end
+  endgenerate
+  
+  generate
+    if(MODE_VAR_MSB)
+    begin
+      always_ff @(posedge CLK_i)
+      begin
+        if(RST_i)
+          SB_MSB <= 1'b0;
+        else if(SET_Valid_i & ~CS_Active)
+          SB_MSB <= SET_MSB_i;
+      end
+    end
+    else
+    begin
+      assign SB_MSB = MODE_TYP_MSB;
+    end
+  endgenerate
   
   logic [MAX_DW-1:0] MSB_Flag;
   
@@ -158,8 +215,8 @@ module Interface_SPI_Slave
   )
   DataW_OneHot
   (
-    .Binary_i (SB.DATAW   ), // normal (binary-encoded) input, valid range 0 .. OUT_W-1
-    .OneHot_o (MSB_Flag   )  // one-hot output: onehot_out[bin_in] = 1'b1
+    .Binary_i (SB_DATAW - 1'd1), // normal (binary-encoded) input, valid range 0 .. OUT_W-1
+    .OneHot_o (MSB_Flag       )  // one-hot output: onehot_out[bin_in] = 1'b1
   );
   
   //------------------------------------------------------------------------------------------
@@ -175,17 +232,17 @@ module Interface_SPI_Slave
   
   always_comb
   begin
-    CS_Active  = (CS_i == SB.CS_POL);
+    CS_Active  = (CS_i == SB_CS_POL);
     CS_EdgeP   = ~CS_Buf &  CS_i;
     CS_EdgeN   =  CS_Buf & ~CS_i;
-    CS_Start   = (SB.CS_POL)? CS_EdgeP : CS_EdgeN;
-    CS_End     = (SB.CS_POL)? CS_EdgeN : CS_EdgeP;
+    CS_Start   = (SB_CS_POL)? CS_EdgeP : CS_EdgeN;
+    CS_End     = (SB_CS_POL)? CS_EdgeN : CS_EdgeP;
   end
   
   always_ff @(posedge CLK_i)
   begin:cs_detect
     if(RST_i)
-      CS_Buf <= DEFAULT_CS;
+      CS_Buf <= ~MODE_TYP_CS;
     else
       CS_Buf <= CS_i;
   end
@@ -205,8 +262,8 @@ module Interface_SPI_Slave
   begin
     SCLK_EdgeP = ~SCLK_Buf &  SCLK_i & CS_Active;
     SCLK_EdgeN =  SCLK_Buf & ~SCLK_i & CS_Active;
-    TX_Latch   = (SB.TX_Edge)? SCLK_EdgeN : SCLK_EdgeP;
-    RX_Latch   = (SB.RX_Edge)? SCLK_EdgeN : SCLK_EdgeP;
+    TX_Latch   = (SB_TX_Edge)? SCLK_EdgeN : SCLK_EdgeP;
+    RX_Latch   = (SB_RX_Edge)? SCLK_EdgeN : SCLK_EdgeP;
   end
   
   always_ff @(posedge CLK_i)
@@ -227,19 +284,19 @@ module Interface_SPI_Slave
   begin:miso_out
     if(RST_i)
       MISO_o <= 1'b0;
-    else if(TX_Latch | (CS_Start & SB.Preload))
+    else if(TX_Latch | (CS_Start & SB_Preload))
       MISO_o <= MISO_Sel;
   end
   
   always_comb
   begin
-    OData.CE    = TX_Latch | (CS_Start & SB.Preload);
+    OData.CE    = TX_Latch | (CS_Start & SB_Preload);
     OData.L     = Valid_i & ~CS_Active  ;
     OData.SLI   = 1'b0                  ;
     OData.SRI   = 1'b0                  ;
-    OData.LEFT  = SB.MSB                ;
+    OData.LEFT  = SB_MSB                ;
     OData.D     = Data_i                ;
-    MISO_Sel    = (SB.MSB)? OData.SLO : OData.SRO;
+    MISO_Sel    = (SB_MSB)? OData.SLO : OData.SRO;
   end
   
   prim_SRxWRLED
@@ -294,7 +351,7 @@ module Interface_SPI_Slave
     IData.L     = 1'b0        ;
     IData.SLI   = MOSI_i      ;
     IData.SRI   = MOSI_i      ;
-    IData.LEFT  = SB.MSB      ;
+    IData.LEFT  = SB_MSB      ;
     IData.D     = '{default:0};
   end
   

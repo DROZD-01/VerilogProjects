@@ -298,6 +298,7 @@
       </File>
       <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_CDMCtrl.sv">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>

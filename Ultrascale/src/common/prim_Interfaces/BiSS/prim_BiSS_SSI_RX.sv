@@ -29,6 +29,7 @@ module prim_BISS_SSI_RX
     parameter  int  VAL_CRCBIT      =  6     , // BiSS-C CRC width [bits]
     parameter  int  WIDTH_CDADDR    =  7     , // 
     parameter  int  WIDTH_CDDATA    =  8     , // register data payload bits
+    parameter  int  WIDTH_CDSLID    =  8     , // 
     parameter  int  MAX_MA_DELAY    =  4     , // Timeout value (full MA cycle periods)
     parameter  bit  EN_ERR_LAT      = 1'b0   , // Enable error latching 
     parameter  bit  EN_STS_CNT      = 1'b0   , // Enable frame and error counters
@@ -58,7 +59,7 @@ module prim_BISS_SSI_RX
     input  logic                      Start_i              , // Initiate a single exchange
     // Parameters
     input  logic                      SET_FSM_Enable_i     , // 0 -> FSMs idle, MA pinned to idle level
-    input  logic                      SET_InterfaceMode_i  , // 0 = SSI, 1 = BiSS-C
+    input  logic                      SET_InterfaceMode_i  , // '1' - SSI, '0' - BiSS
     input  logic                      SET_FSM_Continuous_i , // repeat process frames forever
     input  logic                      SET_EN_BiSS_CRC_i    , // BiSS: append/check CRC-6
     input  logic                      SET_CRC_InclCDS_i    , // 1: CRC covers CDS bits as well as PDU
@@ -91,7 +92,9 @@ module prim_BISS_SSI_RX
     output logic [  WIDTH_PDUBIT-1:0] Recv_SSIPadding_o    , // 
     // Input/Output, CD channel
     input  logic                      COMM_Request_i       , // 
-    input  logic                      COMM_RdWr_i          , // 
+    input  logic [               1:0] COMM_Type_i          , // 00 single-byte read, 01 single-byte write, 10 command, 11 broadcast command
+    input  logic [               1:0] COMM_CMD_i           , // command frame: command code (bit 1 = CMD1, first on the wire)
+    input  logic [  WIDTH_CDSLID-1:0] COMM_IDSel_i         , // command frame: linear-select slave-ID mask (bit 7 = IDS0, first on the wire)
     input  logic [  WIDTH_CDADDR-1:0] COMM_Addr_i          , // 
     input  logic [  WIDTH_CDDATA-1:0] COMM_Data_i          , // 
     output logic                      COMM_Reply_o         , // 
@@ -495,7 +498,7 @@ module prim_BISS_SSI_RX
   // CDM register-access sequencer
   //--------------------------------------------------------------------
   
-  prim_BiSS_SSI_CDMCtrl
+  prim_BiSS_SSI_CDMCtrl_GEN
   #(
     .MAX_CDSBIT     (MAX_CDSBIT   ), // Widest CDS field [bits]
     .WIDTH_CDADDR   (WIDTH_CDADDR ), // 
@@ -507,10 +510,12 @@ module prim_BISS_SSI_RX
     .CLK_i               (CLK_i             ), // 
     .SET_FSM_Enable_i    (SetR_FSM_Enable   ), // global enable
     // Register access request (pulse; sampled when idle)
-    .COMM_Request_i      (COMM_Request_i    ), //
-    .COMM_RdWr_i         (COMM_RdWr_i       ), // 1 = write
-    .COMM_Addr_i         (COMM_Addr_i       ), //
-    .COMM_Data_i         (COMM_Data_i       ), //
+    .COMM_Request_i      (COMM_Request_i    ), // 
+    .COMM_Type_i         (COMM_Type_i       ), // 
+    .COMM_Cmd_i          (COMM_CMD_i        ), // COMM_CMD_i
+    .COMM_IDSel_i        (COMM_IDSel_i      ), // 
+    .COMM_Addr_i         (COMM_Addr_i       ), // 
+    .COMM_Data_i         (COMM_Data_i       ), // 
     // Frame events from the frame controller 
     .FR_Load_i           (FR_Load           ), // pulse: a frame was accepted
     .FR_IsCDM_i          (FR_IsCDM          ), // level: the accepted frame is ours
