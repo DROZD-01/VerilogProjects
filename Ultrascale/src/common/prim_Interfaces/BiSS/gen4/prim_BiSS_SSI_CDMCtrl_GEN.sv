@@ -51,7 +51,7 @@
 *
 ***************************************************************************************************/
 
-module prim_BiSS_SSI_CDMCtrl
+module prim_BiSS_SSI_CDMCtrl_GEN
   #(
     parameter int MAX_CDSBIT   = 1   , // CDS field width [bits]; BiSS-C control channel: 1
     parameter int WIDTH_CDADDR = 7   , // register address width [bits]
@@ -227,11 +227,23 @@ module prim_BiSS_SSI_CDMCtrl
         case (MainSM)
           CC_PRE, CC_ABRT:
           begin
-            // the '0' run is complete when this commit reaches RUN_REQ frames
-            if (ZeroRun_q >= RUN_REQ_M1)
-            begin
-              MainSmNext_c = (MainSM == CC_PRE) ? CC_HEAD : CC_IDLE;
-              IdxNext_c    = 4'd0;
+            // the '0' run is complete when this commit reaches RUN_REQ frames.
+            // CC_ABRT needs one extra frame: its first '0' cancels a slave
+            // that is still inside a transaction (start-bit wait), and only
+            // the following frames rebuild the slave's timeout run.
+            if (MainSM == CC_PRE) begin
+              if (ZeroRun_q >= RUN_REQ_M1)
+              begin
+                MainSmNext_c = CC_HEAD;
+                IdxNext_c    = 4'd0;
+              end
+            end
+            else begin
+              if (ZeroRun_q >= RUN_REQ + 4'd1)
+              begin
+                MainSmNext_c = CC_IDLE;
+                IdxNext_c    = 4'd0;
+              end
             end
           end
 
@@ -448,6 +460,7 @@ module prim_BiSS_SSI_CDMCtrl
         MainSM     <= CC_ABRT;
         Idx_q      <= 4'd0;
         Busy_q     <= 'd0;
+        ZeroRun_q  <= 4'd0;   // the slave restarts its timeout run after the cancel
       end
       else
       begin
@@ -530,9 +543,13 @@ module prim_BiSS_SSI_CDMCtrl
         MainSM <= MainSmNext_c;
         Idx_q  <= IdxNext_c;
 
-        // CDM='0' idle-run bookkeeping (the data frames between accesses
-        // transmit CDM='0' through their idle timeout slots as well)
-        if (FR_Load_i)
+        // CDM='0' idle-run bookkeeping.  The slave restarts its own timeout
+        // counter when a transaction completes or is cancelled, so the master
+        // must mirror both restarts: after a completion/abort the next access
+        // always needs a full RUN_REQ '0' run (CC_PRE) before its header.
+        if (R_Done_c || W_Done_c || X_Done_c || RW_Err_c || W_Err_c || R_Err_c || BusyTO_c)
+          ZeroRun_q <= 4'd0;
+        else if (FR_Load_i)
         begin
           if (REQ_CDM_o && CDM_Bit_q)
             ZeroRun_q <= 4'd0;

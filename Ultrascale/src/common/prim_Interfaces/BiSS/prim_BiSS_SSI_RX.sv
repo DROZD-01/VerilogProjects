@@ -22,33 +22,28 @@
 module prim_BISS_SSI_RX
   #(
     parameter  real FREQ_SYSCLK     = 100e6  , // Main system clock frequency, Hz
-    parameter  bit  MODE_BAUDCTRL   = 1'b1   , // Baudrate control mode:'0' - fixed tick rate, '1' - variable tick rate
+    parameter  bit  MODE_BAUDCTRL   = 1'b0   , // Baudrate control mode: '1' - fixed baudrate, '0' - variable baudrate
     parameter  int  BAUD_FIXED_DEF  = 500000 , // UART baudrate (for fixed mode)
     parameter  int  MAX_PDUBIT      = 32     , // Widest process-data payload [bits]
-    parameter  int  MAX_CDSBIT      =  1     , // Widest CDS field [bits]
     parameter  int  VAL_CRCBIT      =  6     , // BiSS-C CRC width [bits]
-    parameter  int  WIDTH_CDADDR    =  7     , // 
-    parameter  int  WIDTH_CDDATA    =  8     , // register data payload bits
-    parameter  int  WIDTH_CDSLID    =  8     , // 
+    parameter  int  WIDTH_CDADDR    =  7     , // Control Communication address payload bit width [bits]
+    parameter  int  WIDTH_CDDATA    =  8     , // Control Communication data    payload bit width [bits]
+    parameter  int  WIDTH_CDSLID    =  8     , // Control Communication ID      payload bit width [bits]
     parameter  int  MAX_MA_DELAY    =  4     , // Timeout value (full MA cycle periods)
-    parameter  bit  EN_ERR_LAT      = 1'b0   , // Enable error latching 
-    parameter  bit  EN_STS_CNT      = 1'b0   , // Enable frame and error counters
-    parameter  int  WIDTH_CNT_FR    =  4     , // Error event counter width
-    parameter  int  WIDTH_CNT_ER    =  4     , // Frame counter width
-    parameter  int  OVERSAMPLE      = 32     , // Ticks per baud
-    
-    parameter  int  WIDTH_TICKDEL   =  8     , // Manual SL line delay bit width
+    parameter  bit  EN_ERR_LAT      = 1'b1   , // Enable error latching (reset with "Clear_Status_i")
+    parameter  bit  EN_STS_CNT      = 1'b1   , // Enable frame and error counters
+    parameter  int  WIDTH_CNT_FR    =  4     , // Error event counter width [bits]
+    parameter  int  WIDTH_CNT_ER    =  4     , // Frame counter width [bits]
+    parameter  int  OVERSAMPLE      = 32     , // Oversampling ticks per baud
+    parameter  int  WIDTH_TICKDEL   =  8     , // Manual SL line delay bit width [bits]
     parameter  int  WIDTH_INTFRGAP  = 16     , // inter-frame gap [ovs ticks]
-    parameter  int  WIDTH_LIMHALFM  = 16     , // extra MA cycles before TX abort
+    parameter  int  WIDTH_LIMHALFM  = 16     , // extra half-MA cycles before TX abort
     parameter  int  WIDTH_LIMTTIMO  = 16     , // frame watchdog [ovs ticks], 0 = infinite
     parameter  int  WIDTH_EXTRTCDM  = 12     , // CDM '1' start extension [ovs ticks]
+    parameter  int  BV_NUM          = 4      , // Number of entries in BAUD_VAL
+    parameter  int  BAUD_VAL [0:BV_NUM-1] = '{500000, 1000000, 1500000, 2000000}, // Baudrates, selectable by "SET_Baudrate_i"
     
-    
-    parameter  int  BV_NUM          = 4      , // Number of entries in BAUD_VALUES
-    parameter  int  BAUD_VAL [0:BV_NUM-1] = '{500000, 1000000, 1500000, 2000000},
-    
-    localparam int  MAX_FRAMEBIT    = 1 + MAX_CDSBIT + MAX_PDUBIT + VAL_CRCBIT, // 
-    localparam int  WIDTH_CDSBIT    = $clog2(MAX_CDSBIT   + 1) , // 
+    localparam int  MAX_FRAMEBIT    = 1 + 1 + MAX_PDUBIT + VAL_CRCBIT, // 
     localparam int  WIDTH_PDUBIT    = $clog2(MAX_PDUBIT   + 1) , // 
     localparam int  WIDTH_FRAMEBIT  = $clog2(MAX_FRAMEBIT + 1) , // 
     localparam int  BV_WIDTH        = $clog2(BV_NUM)
@@ -67,7 +62,6 @@ module prim_BISS_SSI_RX
     input  logic                      SET_SSI_LenMode_i    , // 0 = length from pdu_bits, 1 = discover from the monoflop marker (zero-padded MSBs!)
     input  logic                      SET_Lvl_LaunchSL_i   , // MA level AFTER the edge the slave launches on
     input  logic                      SET_Lvl_MA_Idle_i    , // MA level while idle
-    input  logic [  WIDTH_CDSBIT-1:0] SET_CDSBits_i        , // CDS field width (clamped to MAX_CDS_BITS)
     input  logic [  WIDTH_PDUBIT-1:0] SET_PDUBits_i        , // PDU width (clamped to MAX_PDU_BITS)
     input  logic [      BV_WIDTH-1:0] SET_Baudrate_i       , // MA speed gear -> MA_BAUD_VAL table below; snapshotted, so speed changes land at frame boundaries
     input  logic [WIDTH_INTFRGAP-1:0] SET_InterFrameGap_i  , // inter-frame gap [ovs ticks]
@@ -77,28 +71,28 @@ module prim_BISS_SSI_RX
     input  logic [WIDTH_EXTRTCDM-1:0] SET_Extra_TickCDM_i  , // CDM '1' start extension [ovs ticks]
     // Status
     input  logic                      Clear_Status_i       , // Clears frame counter and error flags/counter
-    output logic [  WIDTH_CNT_FR-1:0] Count_Frame_o        , // 
-    output logic [  WIDTH_CNT_ER-1:0] Count_Error_o        , // 
-    output logic                      ERR_NoStart_o        , // 
-    output logic                      ERR_NoMarker_o       , // 
-    output logic                      ERR_BadCRC_o         , // 
-    output logic                      ERR_WdExp_o          , // 
-    output logic                      ERR_Measure_o        , // 
-    output logic                      ERR_CDM_o            , // 
+    output logic [  WIDTH_CNT_FR-1:0] Count_Frame_o        , // Frame received counter
+    output logic [  WIDTH_CNT_ER-1:0] Count_Error_o        , // Error event counter
+    output logic                      ERR_NoStart_o        , // Error: Frame start not detected
+    output logic                      ERR_NoMarker_o       , // Error: SSI monoflop marker not detected
+    output logic                      ERR_BadCRC_o         , // Error: BiSS-C CRC mismatch
+    output logic                      ERR_WdExp_o          , // Error: Watchdog timeout
+    output logic                      ERR_Measure_o        , // Error: Line delay measurement failed
+    output logic                      ERR_CDM_o            , // Error: CDM access rejected, timed out or aborted
     // Output, Data channel
-    output logic                      Recv_Valid_o         , // 
-    output logic [    MAX_PDUBIT-1:0] Recv_PDUBits_o       , // 
-    output logic [  WIDTH_PDUBIT-1:0] Recv_PDULength_o     , // 
-    output logic [  WIDTH_PDUBIT-1:0] Recv_SSIPadding_o    , // 
+    output logic                      Recv_Valid_o         , // Process Data: data valid
+    output logic [    MAX_PDUBIT-1:0] Recv_PDUBits_o       , // Process Data: data
+    output logic [  WIDTH_PDUBIT-1:0] Recv_PDULength_o     , // Process Data: data bits received
+    output logic [  WIDTH_PDUBIT-1:0] Recv_SSIPadding_o    , // Process Data: SSI-AUTO leading pad zeros
     // Input/Output, CD channel
-    input  logic                      COMM_Request_i       , // 
-    input  logic [               1:0] COMM_Type_i          , // 00 single-byte read, 01 single-byte write, 10 command, 11 broadcast command
-    input  logic [               1:0] COMM_CMD_i           , // command frame: command code (bit 1 = CMD1, first on the wire)
-    input  logic [  WIDTH_CDSLID-1:0] COMM_IDSel_i         , // command frame: linear-select slave-ID mask (bit 7 = IDS0, first on the wire)
-    input  logic [  WIDTH_CDADDR-1:0] COMM_Addr_i          , // 
-    input  logic [  WIDTH_CDDATA-1:0] COMM_Data_i          , // 
-    output logic                      COMM_Reply_o         , // 
-    output logic [  WIDTH_CDDATA-1:0] COMM_Data_o          , // 
+    input  logic                      COMM_Request_i       , // Control Communication: request
+    input  logic [               1:0] COMM_Type_i          , // Control Communication: command type, '00' - single-byte read, '01' - single-byte write, '10' - command, '11' - broadcast command
+    input  logic [               1:0] COMM_CMD_i           , // Control Communication: command code (bit 1 = CMD1, first on the wire)
+    input  logic [  WIDTH_CDSLID-1:0] COMM_IDSel_i         , // Control Communication: linear-select slave-ID mask (bit 7 = IDS0, first on the wire)
+    input  logic [  WIDTH_CDADDR-1:0] COMM_Addr_i          , // Control Communication: address in
+    input  logic [  WIDTH_CDDATA-1:0] COMM_Data_i          , // Control Communication: data    in
+    output logic                      COMM_Reply_o         , // Control Communication: reply
+    output logic [  WIDTH_CDDATA-1:0] COMM_Data_o          , // Control Communication: data out
     // Input
     output logic                      SS_MA                , // Master -> Slave clock line
     input  logic                      SS_SL                  // Master <- Slave data line
@@ -123,7 +117,6 @@ module prim_BISS_SSI_RX
   logic                      SetR_SSI_LenMode    ; // 
   logic                      SetR_Lvl_LaunchSL   ; // 
   logic                      SetR_Lvl_MA_Idle    ; // 
-  logic [  WIDTH_CDSBIT-1:0] SetR_CDSBits        ; // 
   logic [  WIDTH_PDUBIT-1:0] SetR_PDUBits        ; // 
   logic [      BV_WIDTH-1:0] SetR_Baudrate       ; // 
   logic [WIDTH_INTFRGAP-1:0] SetR_InterFrameGap  ; // 
@@ -139,12 +132,12 @@ module prim_BISS_SSI_RX
   // Line-delay measurement
   logic                      Meas_Error       ; // 
   logic                      Meas_Done        ; // 
+  logic                      Meas_Valid       ; // 
   logic [         TAP_W-1:0] TickDelay        ; // Line delay in tick pulses
   
   // Delay pipeline / sampling
   logic                      MA_Edge_Del      ; // 
   logic                      MA_Level_Del     ; // 
-  logic                      ImmAppl_Delay    ; // Immediate delay aplication is allowed
   logic [         TAP_W-1:0] TickDelay_Active ; // 
   logic [         TAP_W-1:0] TickDelay_Shadow ; // 
   logic                      SL_Sample_Level  ; // 
@@ -159,7 +152,7 @@ module prim_BISS_SSI_RX
   
   // RX deserializer / CRC
   logic                      RX_FrameDone     ; // 
-  logic [    MAX_CDSBIT-1:0] Recv_CDSBits     ; // 
+  logic                      Recv_CDSBits     ; // 
   logic                      Err_NoStart      ; // 
   logic                      Err_NoMarker     ; // 
   logic                      Err_BadCRC       ; // 
@@ -196,8 +189,8 @@ module prim_BISS_SSI_RX
   always_comb
   begin
     case({SET_InterfaceMode_i, SET_EN_BiSS_CRC_i})
-      2'b00: Set_FrameBits = 1'd1 + SET_CDSBits_i + SET_PDUBits_i             ; // BiSS, CRC disabled
-      2'b01: Set_FrameBits = 1'd1 + SET_CDSBits_i + SET_PDUBits_i + VAL_CRCBIT; // BiSS, CRC enabled
+      2'b00: Set_FrameBits = 1'd1 + 1'd1 + SET_PDUBits_i             ; // BiSS, CRC disabled
+      2'b01: Set_FrameBits = 1'd1 + 1'd1 + SET_PDUBits_i + VAL_CRCBIT; // BiSS, CRC enabled
       2'b10: Set_FrameBits = SetR_PDUBits                                     ; // SSI
       2'b11: Set_FrameBits = SetR_PDUBits                                     ; // SSI
     endcase
@@ -216,7 +209,6 @@ module prim_BISS_SSI_RX
       SetR_SSI_LenMode    <= 1'd0;
       SetR_Lvl_LaunchSL   <= 1'd0;
       SetR_Lvl_MA_Idle    <= 1'd0;
-      SetR_CDSBits        <=  'd0;
       SetR_PDUBits        <=  'd0;
       SetR_FrameBits      <=  'd0;
       SetR_Baudrate       <=  'd0;
@@ -225,7 +217,7 @@ module prim_BISS_SSI_RX
       SetR_Limit_TickTO   <=  'd0;
       SetR_Extra_TickCDM  <=  'd0;
     end
-    else if(FR_Load)
+    else if(FR_Load || Start_i)
     begin
       SetR_FSM_Enable     <= SET_FSM_Enable_i     ; // 
       SetR_InterfaceMode  <= SET_InterfaceMode_i  ; // 
@@ -236,7 +228,6 @@ module prim_BISS_SSI_RX
       SetR_SSI_LenMode    <= SET_SSI_LenMode_i    ; // 
       SetR_Lvl_LaunchSL   <= SET_Lvl_LaunchSL_i   ; // 
       SetR_Lvl_MA_Idle    <= SET_Lvl_MA_Idle_i    ; // 
-      SetR_CDSBits        <= SET_CDSBits_i        ; // 
       SetR_PDUBits        <= SET_PDUBits_i        ; // 
       SetR_FrameBits      <= Set_FrameBits        ; // 
       SetR_Baudrate       <= SET_Baudrate_i       ; // 
@@ -284,25 +275,47 @@ module prim_BISS_SSI_RX
   // start (tracking). Meas_Done_o implies the value is inside the pipe's
   // representable range - no extra range check here.
   //--------------------------------------------------------------------
-  assign ImmAppl_Delay = (TickDelay <= TAP_W'(IMM_TICKS));
-  
   always_ff @(posedge CLK_i) 
   begin
     if(RST_i) 
     begin
-      TickDelay_Active <= 'd0;
-      TickDelay_Shadow <= 'd0;
+      TickDelay_Active <=  'd0;
+      TickDelay_Shadow <=  'd0;
+      Meas_Valid       <= 1'b0;
     end
     else
     begin
       if(FR_Load)
-        TickDelay_Active <= (SET_EN_AutoLD_i)? TickDelay_Shadow : TAP_W'(SET_TickDelay_i);
+      begin
+        // FIX R1: a frame with AutoLD disabled must invalidate the tracked
+        // shadow.  No measurement runs while AutoLD is off (LineDelay arms
+        // only on FR_Launch && SET_EN_AutoLD), so a shadow that survives a
+        // manual-LD period is arbitrarily stale - it was measured under a
+        // different delay regime (e.g. the end of a tracking sweep) and can
+        // sit whole bits away from the current line delay.  Applying it to
+        // the first AutoLD frame after re-enabling corrupts that frame and
+        // raises spurious error flags; the manual SET_TickDelay_i seed is
+        // the documented fallback "until the first AutoLD measurement
+        // completes".
+        case({SET_EN_AutoLD_i, Meas_Valid})
+          2'b11   : 
+          begin
+            Meas_Valid       <= 1'b0;
+            TickDelay_Active <= TickDelay_Shadow;
+          end
+          default : 
+          begin
+            TickDelay_Active <= TAP_W'(SET_TickDelay_i);
+            if(!SET_EN_AutoLD_i)
+              Meas_Valid     <= 1'b0;
+          end
+        endcase
+      end
       
       if(Meas_Done)
       begin
+        Meas_Valid       <= 1'b1;
         TickDelay_Shadow <= TickDelay;
-        if(SetR_EN_AutoLD && ImmAppl_Delay)
-          TickDelay_Active <= TickDelay;
       end
     end
   end
@@ -340,7 +353,7 @@ module prim_BISS_SSI_RX
   begin
     TickHalfP_Empty = (TickDelay_Active[TAP_W-1:HP_W] == 'd0);
     SL_Sample_Level = (TickHalfP_Empty) ? SetR_Lvl_LaunchSL : ~SetR_Lvl_LaunchSL;
-    SL_Sample       = MA_Edge_Del && (MA_Level_Del == SL_Sample_Level);
+    SL_Sample       = MA_Edge_Del && FR_Active && (MA_Level_Del == SL_Sample_Level);
   end
   
   prim_BiSS_SSI_Pipeline
@@ -365,8 +378,6 @@ module prim_BISS_SSI_RX
   // Per-frame round-trip line-delay measurement
   //--------------------------------------------------------------------
   
-  assign FR_Start = FR_Launch && SetR_EN_AutoLD;
-  
   prim_BiSS_SSI_LineDelay
   #(
     .TIMEOUT_MA (MAX_MA_DELAY ), // Timeout value (full MA cycle periods)
@@ -375,17 +386,18 @@ module prim_BISS_SSI_RX
   )
   SL_Delay_Measure
   (
-    .RST_i           (RST_i             ), // System reset
-    .CLK_i           (CLK_i             ), // System clock
-    .TickPulse_i     (TickPulse         ), // Tick pulse input
-    .InterfaceMode_i (SetR_InterfaceMode), // 1'b1 - SSI, 1'b0 - BiSS
-    .FrameStart_i    (FR_Start          ), // frame launched (auto mode)
-    .FrameActive_i   (FR_Active         ), // MA clocking in progress
-    .MA_RefEdge_i    (MA_RefEdge        ), // Reference edge pulse (BiSS - 2nd rising MA edge; SSI - 1st MA edge)
-    .SL_Synched_i    (SL_Sync           ), // 
-    .Meas_Error_o    (Meas_Error        ), // 
-    .Meas_Done_o     (Meas_Done         ), // 
-    .TickDelay_o     (TickDelay         )  // Line delay in tick pulses
+    .RST_i               (RST_i             ), // System reset
+    .CLK_i               (CLK_i             ), // System clock
+    .TickPulse_i         (TickPulse         ), // Tick pulse input
+    .SET_InterfaceMode_i (SetR_InterfaceMode), // 1'b1 - SSI, 1'b0 - BiSS
+    .SET_EN_AutoLD_i     (SetR_EN_AutoLD    ), // per-frame automatic line-delay tracking
+    .FR_Launch_i         (FR_Launch         ), // frame launched (auto mode)
+    .FR_Active_i         (FR_Active         ), // MA clocking in progress
+    .MA_RefEdge_i        (MA_RefEdge        ), // Reference edge pulse (BiSS - 2nd rising MA edge; SSI - 1st MA edge)
+    .SL_Synched_i        (SL_Sync           ), // 
+    .Meas_Error_o        (Meas_Error        ), // 
+    .Meas_Done_o         (Meas_Done         ), // 
+    .TickDelay_o         (TickDelay         )  // Line delay in tick pulses
   );
   
   
@@ -456,7 +468,6 @@ module prim_BISS_SSI_RX
   prim_BiSS_SSI_DeserRX
   #(
     .MAX_PDUBIT (MAX_PDUBIT), // Widest process-data payload [bits]
-    .MAX_CDSBIT (MAX_CDSBIT), // Widest CDS field [bits]
     .VAL_CRCBIT (VAL_CRCBIT)  // BiSS-C CRC width [bits]
   )
   RX_Deserializer
@@ -469,7 +480,6 @@ module prim_BISS_SSI_RX
     .SET_EN_BiSS_CRC_i   (SetR_EN_BiSS_CRC  ), // 
     .SET_CRC_InclCDS_i   (SetR_CRC_InclCDS  ), // 
     .SET_SSI_LenMode_i   (SetR_SSI_LenMode  ), // 
-    .SET_CDSBits_i       (SetR_CDSBits      ), // 
     .SET_PDUBits_i       (SetR_PDUBits      ), // 
     .SET_FrameBits_i     (SetR_FrameBits    ), // 
     // Events
@@ -500,7 +510,6 @@ module prim_BISS_SSI_RX
   
   prim_BiSS_SSI_CDMCtrl_GEN
   #(
-    .MAX_CDSBIT     (MAX_CDSBIT   ), // Widest CDS field [bits]
     .WIDTH_CDADDR   (WIDTH_CDADDR ), // 
     .WIDTH_CDDATA   (WIDTH_CDDATA )  // register data payload bits
   )

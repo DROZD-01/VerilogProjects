@@ -110,8 +110,8 @@ module prim_BiSS_SSI_MAGen
   always_comb
   begin
     Edge_Now      = (Main_SM == MF_RUN) && HalfPulse_i && ~(RX_Done_Latch && (MA_o == SET_Lvl_MA_Idle_i));
-    Edge_Launch   = Edge_Now && MA_Launched ;
-    Edge_Positive = Edge_Now && MA_NextLevel;
+    Edge_Launch   = Edge_Now && !MA_Launched ;
+    Edge_Positive = Edge_Now &&  MA_NextLevel;
     FR_Launch_o   = Edge_Launch;
   end
   
@@ -120,7 +120,16 @@ module prim_BiSS_SSI_MAGen
   // rising MA edge (ACK edge) for BiSS - PosEdge_Count reads 1 while that edge's
   // HalfPulse_i cycle is in progress.
   //--------------------------------------------------------------------
-  assign MA_RefEdge_o = (SET_InterfaceMode_i)? Edge_Launch : (Edge_Positive && (PosEdge_Count == 2'd1));
+  logic RefEdge_Found;
+  //assign MA_RefEdge_o = RefEdge_Found && ((SET_InterfaceMode_i)? Edge_Launch : (Edge_Positive && (PosEdge_Count == 2'd1)));
+  
+  always_comb
+  begin
+    case(SET_InterfaceMode_i)
+      1'b0: MA_RefEdge_o = !RefEdge_Found && (Edge_Positive && (PosEdge_Count == 2'd1));
+      1'b1: MA_RefEdge_o = !RefEdge_Found && Edge_Launch;
+    endcase
+  end
   
   //--------------------------------------------------------------------
   // Abort bound: 2*(frame_bits + margin_cyc) half-cycles. margin_cyc == 0
@@ -146,6 +155,7 @@ module prim_BiSS_SSI_MAGen
       FR_Abort_o          <= 1'b0;
       FR_End_o            <= 1'b0;
       WatchdogExpired_o   <= 1'b0;
+      RefEdge_Found       <= 1'b0;
       FR_Active_o         <= 1'b0;
     end 
     else 
@@ -163,6 +173,7 @@ module prim_BiSS_SSI_MAGen
           begin
             MA_Launched         <= 1'b0;
             PosEdge_Count       <=  'd0;
+            RefEdge_Found       <= 1'b0;
             HalfMA_Count        <=  'd0;
             InterFrameGap_Count <=  'd0;
             Limit_TickTO_Count  <=  'd0;
@@ -186,8 +197,10 @@ module prim_BiSS_SSI_MAGen
           MA_o <= SET_Lvl_MA_Idle_i;
           
           if(Extra_TickCDM_Count != 'd0)
+          begin
             if(TickPulse_i)
               Extra_TickCDM_Count <= Extra_TickCDM_Count - 1'd1;
+          end
           else
             Main_SM             <= MF_RUN;
         end
@@ -233,6 +246,9 @@ module prim_BiSS_SSI_MAGen
                 if(MA_NextLevel && ~SET_InterfaceMode_i)
                   PosEdge_Count <= PosEdge_Count + 1'b1;
                 
+                if(MA_RefEdge_o)
+                  RefEdge_Found       <= 1'b1;
+                
                 if(~MA_Launched)
                 begin
                   // ---- frame launch: the very first MA edge ----
@@ -263,8 +279,10 @@ module prim_BiSS_SSI_MAGen
           MA_o <= SET_Lvl_MA_Idle_i;
           
           if(InterFrameGap_Count < SET_InterFrameGap_i)
+          begin
             if(TickPulse_i)
-              InterFrameGap_Count = InterFrameGap_Count + 1'd1;
+              InterFrameGap_Count <= InterFrameGap_Count + 1'd1;
+          end
           else
             Main_SM <= MF_IDLE;
         end

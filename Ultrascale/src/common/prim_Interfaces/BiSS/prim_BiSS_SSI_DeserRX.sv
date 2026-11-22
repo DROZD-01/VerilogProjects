@@ -23,11 +23,9 @@
 module prim_BiSS_SSI_DeserRX
   #(
     parameter  int MAX_PDUBIT     = 32  , // Widest process-data payload [bits]
-    parameter  int MAX_CDSBIT     = 4   , // Widest CDS field [bits]
     parameter  int VAL_CRCBIT     = 6   , // BiSS-C CRC width [bits]
     
-    localparam int MAX_FRAMEBIT   = 1 + MAX_CDSBIT + MAX_PDUBIT + VAL_CRCBIT, // 
-    localparam int WIDTH_CDSBIT   = $clog2(MAX_CDSBIT   + 1) , // 
+    localparam int MAX_FRAMEBIT   = 1 + 1 + MAX_PDUBIT + VAL_CRCBIT, // 
     localparam int WIDTH_PDUBIT   = $clog2(MAX_PDUBIT   + 1) , // 
     localparam int WIDTH_FRAMEBIT = $clog2(MAX_FRAMEBIT + 1)   // 
   )
@@ -40,7 +38,6 @@ module prim_BiSS_SSI_DeserRX
     input  logic                      SET_EN_BiSS_CRC_i   , // 
     input  logic                      SET_CRC_InclCDS_i   , // 
     input  logic                      SET_SSI_LenMode_i   , // 
-    input  logic [  WIDTH_CDSBIT-1:0] SET_CDSBits_i       , // 
     input  logic [  WIDTH_PDUBIT-1:0] SET_PDUBits_i       , // 
     input  logic [WIDTH_FRAMEBIT-1:0] SET_FrameBits_i     , // 
     // Events
@@ -57,7 +54,7 @@ module prim_BiSS_SSI_DeserRX
     output logic [    MAX_PDUBIT-1:0] Recv_PDUBits_o      , // process data (right-aligned)
     output logic [  WIDTH_PDUBIT-1:0] Recv_PDULength_o    , // effective PDU length
     output logic [  WIDTH_PDUBIT-1:0] Recv_SSIPadding_o   , // SSI-AUTO leading pad zeros
-    output logic [    MAX_CDSBIT-1:0] Recv_CDSBits_o      , // received CDS bits
+    output logic                      Recv_CDSBits_o      , // received CDS bits
     // Status
     output logic                      Err_NoStart_o       , // 
     output logic                      Err_NoMarker_o      , // 
@@ -93,7 +90,7 @@ module prim_BiSS_SSI_DeserRX
   
   always_comb
   begin
-    Index_PDU_Lo = SET_CDSBits_i + 1'd1;
+    Index_PDU_Lo = 2'd2;
     Index_PDU_Hi = Index_PDU_Lo + SET_PDUBits_i - 1'd1;
     TrailingBits = (~SET_InterfaceMode_i && SET_EN_BiSS_CRC_i)? VAL_CRCBIT : 'd0;
   end
@@ -137,7 +134,7 @@ module prim_BiSS_SSI_DeserRX
     return (one << n) - 1'b1;
   endfunction
 
-  function automatic logic [MAX_PDUBIT-1:0] cds_mask_f(logic [WIDTH_CDSBIT-1:0] n);
+  function automatic logic [MAX_PDUBIT-1:0] cds_mask_f(logic n);
     logic [MAX_PDUBIT-1:0] one;
     one = {{(MAX_PDUBIT-1){1'b0}}, 1'b1};
     return (one << n) - 1'b1;
@@ -346,7 +343,7 @@ module prim_BiSS_SSI_DeserRX
               Recv_PDUBits_o    <= MAX_PDUBIT'((RX_ShiftReg >> TrailingBits) & {{(MAX_FRAMEBIT-MAX_PDUBIT){1'b0}}, pdu_mask_f(SET_PDUBits_i)});
               Recv_PDULength_o  <= SET_PDUBits_i;
               Recv_SSIPadding_o <= 'd0;
-              Recv_CDSBits_o    <= MAX_CDSBIT'((RX_ShiftReg >> (TrailingBits + SET_PDUBits_i)) & {{(MAX_FRAMEBIT-MAX_CDSBIT){1'b0}}, cds_mask_f(SET_CDSBits_i)});
+              Recv_CDSBits_o    <= 1'((RX_ShiftReg >> (TrailingBits + SET_PDUBits_i)) & {{(MAX_FRAMEBIT-1){1'b0}}, cds_mask_f(1'b1)});
               
               if(SET_EN_BiSS_CRC_i && (RX_ShiftReg[VAL_CRCBIT-1:0] == CRC_Out))
                 Err_BadCRC_o <= 1'b1;

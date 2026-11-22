@@ -1,0 +1,596 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_prim_BiSS_SSI_RX_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_prim_BiSS_SSI_RX" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="16,079,686.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="16,079,966.801 ns"></ZoomEndTime>
+      <Cursor1Time time="16,079,920.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="209"></NameColumnWidth>
+      <ValueColumnWidth column_width="58"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="143" />
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/VERBOSE" type="array">
+      <obj_property name="ElementShortName">VERBOSE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">VERBOSE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/TRACE" type="array">
+      <obj_property name="ElementShortName">TRACE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TRACE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/n_pass" type="array">
+      <obj_property name="ElementShortName">n_pass[31:0]</obj_property>
+      <obj_property name="ObjectShortName">n_pass[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/n_fail" type="array">
+      <obj_property name="ElementShortName">n_fail[31:0]</obj_property>
+      <obj_property name="ObjectShortName">n_fail[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/RST_i" type="logic">
+      <obj_property name="ElementShortName">RST_i</obj_property>
+      <obj_property name="ObjectShortName">RST_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/CLK_i" type="logic">
+      <obj_property name="ElementShortName">CLK_i</obj_property>
+      <obj_property name="ObjectShortName">CLK_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/Start_i" type="logic">
+      <obj_property name="ElementShortName">Start_i</obj_property>
+      <obj_property name="ObjectShortName">Start_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_FSM_Enable_i" type="logic">
+      <obj_property name="ElementShortName">SET_FSM_Enable_i</obj_property>
+      <obj_property name="ObjectShortName">SET_FSM_Enable_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_InterfaceMode_i" type="logic">
+      <obj_property name="ElementShortName">SET_InterfaceMode_i</obj_property>
+      <obj_property name="ObjectShortName">SET_InterfaceMode_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_FSM_Continuous_i" type="logic">
+      <obj_property name="ElementShortName">SET_FSM_Continuous_i</obj_property>
+      <obj_property name="ObjectShortName">SET_FSM_Continuous_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_EN_BiSS_CRC_i" type="logic">
+      <obj_property name="ElementShortName">SET_EN_BiSS_CRC_i</obj_property>
+      <obj_property name="ObjectShortName">SET_EN_BiSS_CRC_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_CRC_InclCDS_i" type="logic">
+      <obj_property name="ElementShortName">SET_CRC_InclCDS_i</obj_property>
+      <obj_property name="ObjectShortName">SET_CRC_InclCDS_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_EN_AutoLD_i" type="logic">
+      <obj_property name="ElementShortName">SET_EN_AutoLD_i</obj_property>
+      <obj_property name="ObjectShortName">SET_EN_AutoLD_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_SSI_LenMode_i" type="logic">
+      <obj_property name="ElementShortName">SET_SSI_LenMode_i</obj_property>
+      <obj_property name="ObjectShortName">SET_SSI_LenMode_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_Lvl_LaunchSL_i" type="logic">
+      <obj_property name="ElementShortName">SET_Lvl_LaunchSL_i</obj_property>
+      <obj_property name="ObjectShortName">SET_Lvl_LaunchSL_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_Lvl_MA_Idle_i" type="logic">
+      <obj_property name="ElementShortName">SET_Lvl_MA_Idle_i</obj_property>
+      <obj_property name="ObjectShortName">SET_Lvl_MA_Idle_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_PDUBits_i" type="array">
+      <obj_property name="ElementShortName">SET_PDUBits_i[5:0]</obj_property>
+      <obj_property name="ObjectShortName">SET_PDUBits_i[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_Baudrate_i" type="array">
+      <obj_property name="ElementShortName">SET_Baudrate_i[1:0]</obj_property>
+      <obj_property name="ObjectShortName">SET_Baudrate_i[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_InterFrameGap_i" type="array">
+      <obj_property name="ElementShortName">SET_InterFrameGap_i[15:0]</obj_property>
+      <obj_property name="ObjectShortName">SET_InterFrameGap_i[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_Limit_HalfMA_i" type="array">
+      <obj_property name="ElementShortName">SET_Limit_HalfMA_i[15:0]</obj_property>
+      <obj_property name="ObjectShortName">SET_Limit_HalfMA_i[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_Limit_TickTO_i" type="array">
+      <obj_property name="ElementShortName">SET_Limit_TickTO_i[15:0]</obj_property>
+      <obj_property name="ObjectShortName">SET_Limit_TickTO_i[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_TickDelay_i" type="array">
+      <obj_property name="ElementShortName">SET_TickDelay_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">SET_TickDelay_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SET_Extra_TickCDM_i" type="array">
+      <obj_property name="ElementShortName">SET_Extra_TickCDM_i[11:0]</obj_property>
+      <obj_property name="ObjectShortName">SET_Extra_TickCDM_i[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/Clear_Status_i" type="logic">
+      <obj_property name="ElementShortName">Clear_Status_i</obj_property>
+      <obj_property name="ObjectShortName">Clear_Status_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/Count_Frame_o" type="array">
+      <obj_property name="ElementShortName">Count_Frame_o[3:0]</obj_property>
+      <obj_property name="ObjectShortName">Count_Frame_o[3:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/Count_Error_o" type="array">
+      <obj_property name="ElementShortName">Count_Error_o[3:0]</obj_property>
+      <obj_property name="ObjectShortName">Count_Error_o[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ERR_NoStart_o" type="logic">
+      <obj_property name="ElementShortName">ERR_NoStart_o</obj_property>
+      <obj_property name="ObjectShortName">ERR_NoStart_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ERR_NoMarker_o" type="logic">
+      <obj_property name="ElementShortName">ERR_NoMarker_o</obj_property>
+      <obj_property name="ObjectShortName">ERR_NoMarker_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ERR_BadCRC_o" type="logic">
+      <obj_property name="ElementShortName">ERR_BadCRC_o</obj_property>
+      <obj_property name="ObjectShortName">ERR_BadCRC_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ERR_WdExp_o" type="logic">
+      <obj_property name="ElementShortName">ERR_WdExp_o</obj_property>
+      <obj_property name="ObjectShortName">ERR_WdExp_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ERR_Measure_o" type="logic">
+      <obj_property name="ElementShortName">ERR_Measure_o</obj_property>
+      <obj_property name="ObjectShortName">ERR_Measure_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ERR_CDM_o" type="logic">
+      <obj_property name="ElementShortName">ERR_CDM_o</obj_property>
+      <obj_property name="ObjectShortName">ERR_CDM_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/Recv_Valid_o" type="logic">
+      <obj_property name="ElementShortName">Recv_Valid_o</obj_property>
+      <obj_property name="ObjectShortName">Recv_Valid_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/Recv_PDUBits_o" type="array">
+      <obj_property name="ElementShortName">Recv_PDUBits_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">Recv_PDUBits_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/Recv_PDULength_o" type="array">
+      <obj_property name="ElementShortName">Recv_PDULength_o[5:0]</obj_property>
+      <obj_property name="ObjectShortName">Recv_PDULength_o[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/Recv_SSIPadding_o" type="array">
+      <obj_property name="ElementShortName">Recv_SSIPadding_o[5:0]</obj_property>
+      <obj_property name="ObjectShortName">Recv_SSIPadding_o[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/COMM_Request_i" type="logic">
+      <obj_property name="ElementShortName">COMM_Request_i</obj_property>
+      <obj_property name="ObjectShortName">COMM_Request_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/COMM_Type_i" type="array">
+      <obj_property name="ElementShortName">COMM_Type_i[1:0]</obj_property>
+      <obj_property name="ObjectShortName">COMM_Type_i[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/COMM_CMD_i" type="array">
+      <obj_property name="ElementShortName">COMM_CMD_i[1:0]</obj_property>
+      <obj_property name="ObjectShortName">COMM_CMD_i[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/COMM_IDSel_i" type="array">
+      <obj_property name="ElementShortName">COMM_IDSel_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">COMM_IDSel_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/COMM_Addr_i" type="array">
+      <obj_property name="ElementShortName">COMM_Addr_i[6:0]</obj_property>
+      <obj_property name="ObjectShortName">COMM_Addr_i[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/COMM_Data_i" type="array">
+      <obj_property name="ElementShortName">COMM_Data_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">COMM_Data_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/COMM_Reply_o" type="logic">
+      <obj_property name="ElementShortName">COMM_Reply_o</obj_property>
+      <obj_property name="ObjectShortName">COMM_Reply_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/COMM_Data_o" type="array">
+      <obj_property name="ElementShortName">COMM_Data_o[7:0]</obj_property>
+      <obj_property name="ObjectShortName">COMM_Data_o[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SS_MA" type="logic">
+      <obj_property name="ElementShortName">SS_MA</obj_property>
+      <obj_property name="ObjectShortName">SS_MA</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SS_SL" type="logic">
+      <obj_property name="ElementShortName">SS_SL</obj_property>
+      <obj_property name="ObjectShortName">SS_SL</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_ssi" type="array">
+      <obj_property name="ElementShortName">cfg_ssi[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_ssi[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_cont" type="array">
+      <obj_property name="ElementShortName">cfg_cont[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_cont[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_crc" type="array">
+      <obj_property name="ElementShortName">cfg_crc[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_crc[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_inclcds" type="array">
+      <obj_property name="ElementShortName">cfg_inclcds[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_inclcds[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_autold" type="array">
+      <obj_property name="ElementShortName">cfg_autold[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_autold[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_ssilen" type="array">
+      <obj_property name="ElementShortName">cfg_ssilen[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_ssilen[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_launch" type="array">
+      <obj_property name="ElementShortName">cfg_launch[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_launch[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_idle" type="array">
+      <obj_property name="ElementShortName">cfg_idle[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_idle[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_pdu" type="array">
+      <obj_property name="ElementShortName">cfg_pdu[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_pdu[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_baud" type="array">
+      <obj_property name="ElementShortName">cfg_baud[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_baud[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_gap" type="array">
+      <obj_property name="ElementShortName">cfg_gap[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_gap[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_halfma" type="array">
+      <obj_property name="ElementShortName">cfg_halfma[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_halfma[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_tickto" type="array">
+      <obj_property name="ElementShortName">cfg_tickto[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_tickto[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_tickdelay" type="array">
+      <obj_property name="ElementShortName">cfg_tickdelay[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_tickdelay[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_extracdm" type="array">
+      <obj_property name="ElementShortName">cfg_extracdm[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_extracdm[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cfg_ida" type="array">
+      <obj_property name="ElementShortName">cfg_ida[7:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_ida[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/auto_p" type="array">
+      <obj_property name="ElementShortName">auto_p[31:0]</obj_property>
+      <obj_property name="ObjectShortName">auto_p[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/auto_w" type="array">
+      <obj_property name="ElementShortName">auto_w[31:0]</obj_property>
+      <obj_property name="ObjectShortName">auto_w[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SLV_T_MULT" type="other">
+      <obj_property name="ElementShortName">SLV_T_MULT</obj_property>
+      <obj_property name="ObjectShortName">SLV_T_MULT</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SLV_STUCK0" type="logic">
+      <obj_property name="ElementShortName">SLV_STUCK0</obj_property>
+      <obj_property name="ObjectShortName">SLV_STUCK0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SLV_STUCK1" type="logic">
+      <obj_property name="ElementShortName">SLV_STUCK1</obj_property>
+      <obj_property name="ObjectShortName">SLV_STUCK1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SLV_NO_MARKER" type="logic">
+      <obj_property name="ElementShortName">SLV_NO_MARKER</obj_property>
+      <obj_property name="ObjectShortName">SLV_NO_MARKER</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SLV_CRC_PLAIN" type="logic">
+      <obj_property name="ElementShortName">SLV_CRC_PLAIN</obj_property>
+      <obj_property name="ObjectShortName">SLV_CRC_PLAIN</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SLV_BUSY_S" type="array">
+      <obj_property name="ElementShortName">SLV_BUSY_S[31:0]</obj_property>
+      <obj_property name="ObjectShortName">SLV_BUSY_S[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SLV_RD_CRC_ERR" type="logic">
+      <obj_property name="ElementShortName">SLV_RD_CRC_ERR</obj_property>
+      <obj_property name="ObjectShortName">SLV_RD_CRC_ERR</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/regfile" type="array">
+      <obj_property name="ElementShortName">regfile[0:127][7:0]</obj_property>
+      <obj_property name="ObjectShortName">regfile[0:127][7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_state" type="array">
+      <obj_property name="ElementShortName">ps_state[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_state[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_zero_run" type="array">
+      <obj_property name="ElementShortName">ps_zero_run[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_zero_run[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_hdr_idx" type="array">
+      <obj_property name="ElementShortName">ps_hdr_idx[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_hdr_idx[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_hdr" type="array">
+      <obj_property name="ElementShortName">ps_hdr[11:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_hdr[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_hdrcrc" type="array">
+      <obj_property name="ElementShortName">ps_hdrcrc[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_hdrcrc[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_hdr_ok" type="logic">
+      <obj_property name="ElementShortName">ps_hdr_ok</obj_property>
+      <obj_property name="ObjectShortName">ps_hdr_ok</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_reject" type="logic">
+      <obj_property name="ElementShortName">ps_reject</obj_property>
+      <obj_property name="ObjectShortName">ps_reject</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_rw_idx" type="array">
+      <obj_property name="ElementShortName">ps_rw_idx[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_rw_idx[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_rbit" type="logic">
+      <obj_property name="ElementShortName">ps_rbit</obj_property>
+      <obj_property name="ObjectShortName">ps_rbit</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_wbit" type="logic">
+      <obj_property name="ElementShortName">ps_wbit</obj_property>
+      <obj_property name="ObjectShortName">ps_wbit</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_is_read" type="logic">
+      <obj_property name="ElementShortName">ps_is_read</obj_property>
+      <obj_property name="ObjectShortName">ps_is_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_addr" type="array">
+      <obj_property name="ElementShortName">ps_addr[6:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_addr[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_data_idx" type="array">
+      <obj_property name="ElementShortName">ps_data_idx[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_data_idx[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_cwait_idx" type="array">
+      <obj_property name="ElementShortName">ps_cwait_idx[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_cwait_idx[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_rdata" type="array">
+      <obj_property name="ElementShortName">ps_rdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_rdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_rcrc" type="array">
+      <obj_property name="ElementShortName">ps_rcrc[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_rcrc[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_wdata" type="array">
+      <obj_property name="ElementShortName">ps_wdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_wdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_wcrc" type="array">
+      <obj_property name="ElementShortName">ps_wcrc[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_wcrc[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ps_busy_left" type="array">
+      <obj_property name="ElementShortName">ps_busy_left[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_busy_left[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/q_t" type="array">
+      <obj_property name="ElementShortName">q_t[0:511]</obj_property>
+      <obj_property name="ObjectShortName">q_t[0:511]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/q_v" type="array">
+      <obj_property name="ElementShortName">q_v[0:511]</obj_property>
+      <obj_property name="ObjectShortName">q_v[0:511]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/q_n" type="array">
+      <obj_property name="ElementShortName">q_n[31:0]</obj_property>
+      <obj_property name="ObjectShortName">q_n[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/q_gen" type="array">
+      <obj_property name="ElementShortName">q_gen[31:0]</obj_property>
+      <obj_property name="ObjectShortName">q_gen[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/plan_valid" type="logic">
+      <obj_property name="ElementShortName">plan_valid</obj_property>
+      <obj_property name="ObjectShortName">plan_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/plan_bidx" type="array">
+      <obj_property name="ElementShortName">plan_bidx[31:0]</obj_property>
+      <obj_property name="ObjectShortName">plan_bidx[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/plan_pdu_exp" type="array">
+      <obj_property name="ElementShortName">plan_pdu_exp[31:0]</obj_property>
+      <obj_property name="ObjectShortName">plan_pdu_exp[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/plan_len_exp" type="array">
+      <obj_property name="ElementShortName">plan_len_exp[31:0]</obj_property>
+      <obj_property name="ObjectShortName">plan_len_exp[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/plan_pad_exp" type="array">
+      <obj_property name="ElementShortName">plan_pad_exp[31:0]</obj_property>
+      <obj_property name="ObjectShortName">plan_pad_exp[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/plan_cds_exp" type="logic">
+      <obj_property name="ElementShortName">plan_cds_exp</obj_property>
+      <obj_property name="ObjectShortName">plan_cds_exp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/plan_chk_cds" type="array">
+      <obj_property name="ElementShortName">plan_chk_cds[31:0]</obj_property>
+      <obj_property name="ObjectShortName">plan_chk_cds[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/plan_pdu_tx" type="array">
+      <obj_property name="ElementShortName">plan_pdu_tx[31:0]</obj_property>
+      <obj_property name="ObjectShortName">plan_pdu_tx[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/seq_b" type="array">
+      <obj_property name="ElementShortName">seq_b[0:79]</obj_property>
+      <obj_property name="ObjectShortName">seq_b[0:79]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/seq_len" type="array">
+      <obj_property name="ElementShortName">seq_len[31:0]</obj_property>
+      <obj_property name="ObjectShortName">seq_len[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/bidx" type="array">
+      <obj_property name="ElementShortName">bidx[31:0]</obj_property>
+      <obj_property name="ObjectShortName">bidx[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/burst_active" type="logic">
+      <obj_property name="ElementShortName">burst_active</obj_property>
+      <obj_property name="ObjectShortName">burst_active</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/awaiting_b1" type="logic">
+      <obj_property name="ElementShortName">awaiting_b1</obj_property>
+      <obj_property name="ObjectShortName">awaiting_b1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/oracle_pending" type="logic">
+      <obj_property name="ElementShortName">oracle_pending</obj_property>
+      <obj_property name="ObjectShortName">oracle_pending</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/oracle_edges" type="array">
+      <obj_property name="ElementShortName">oracle_edges[31:0]</obj_property>
+      <obj_property name="ObjectShortName">oracle_edges[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/launch_cnt" type="array">
+      <obj_property name="ElementShortName">launch_cnt[31:0]</obj_property>
+      <obj_property name="ObjectShortName">launch_cnt[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/t_last_edge" type="other">
+      <obj_property name="ElementShortName">t_last_edge</obj_property>
+      <obj_property name="ObjectShortName">t_last_edge</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/t_bstart" type="other">
+      <obj_property name="ElementShortName">t_bstart</obj_property>
+      <obj_property name="ObjectShortName">t_bstart</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/t_bend" type="other">
+      <obj_property name="ElementShortName">t_bend</obj_property>
+      <obj_property name="ObjectShortName">t_bend</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/last_idle_ns" type="other">
+      <obj_property name="ElementShortName">last_idle_ns</obj_property>
+      <obj_property name="ObjectShortName">last_idle_ns</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/slv_missed" type="array">
+      <obj_property name="ElementShortName">slv_missed[31:0]</obj_property>
+      <obj_property name="ObjectShortName">slv_missed[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/frames_done" type="array">
+      <obj_property name="ElementShortName">frames_done[31:0]</obj_property>
+      <obj_property name="ObjectShortName">frames_done[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/slv_en" type="logic">
+      <obj_property name="ElementShortName">slv_en</obj_property>
+      <obj_property name="ObjectShortName">slv_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/t_half_meas" type="other">
+      <obj_property name="ElementShortName">t_half_meas</obj_property>
+      <obj_property name="ObjectShortName">t_half_meas</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cdm_bit_last" type="logic">
+      <obj_property name="ElementShortName">cdm_bit_last</obj_property>
+      <obj_property name="ObjectShortName">cdm_bit_last</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ovr_val" type="array">
+      <obj_property name="ElementShortName">ovr_val[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ovr_val[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ovr_cnt" type="array">
+      <obj_property name="ElementShortName">ovr_cnt[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ovr_cnt[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/f_ok" type="array">
+      <obj_property name="ElementShortName">f_ok[31:0]</obj_property>
+      <obj_property name="ObjectShortName">f_ok[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/f_bad" type="array">
+      <obj_property name="ElementShortName">f_bad[31:0]</obj_property>
+      <obj_property name="ObjectShortName">f_bad[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/f_valid" type="array">
+      <obj_property name="ElementShortName">f_valid[31:0]</obj_property>
+      <obj_property name="ObjectShortName">f_valid[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/comm_reply_seen" type="logic">
+      <obj_property name="ElementShortName">comm_reply_seen</obj_property>
+      <obj_property name="ObjectShortName">comm_reply_seen</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/comm_reply_data" type="array">
+      <obj_property name="ElementShortName">comm_reply_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">comm_reply_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/f_ok0" type="array">
+      <obj_property name="ElementShortName">f_ok0[31:0]</obj_property>
+      <obj_property name="ObjectShortName">f_ok0[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/f_bad0" type="array">
+      <obj_property name="ElementShortName">f_bad0[31:0]</obj_property>
+      <obj_property name="ObjectShortName">f_bad0[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/cf0" type="array">
+      <obj_property name="ElementShortName">cf0[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cf0[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/ce0" type="array">
+      <obj_property name="ElementShortName">ce0[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ce0[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/bidx0" type="array">
+      <obj_property name="ElementShortName">bidx0[31:0]</obj_property>
+      <obj_property name="ObjectShortName">bidx0[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/miss0" type="array">
+      <obj_property name="ElementShortName">miss0[31:0]</obj_property>
+      <obj_property name="ObjectShortName">miss0[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/SIM_LIMIT_NS" type="other">
+      <obj_property name="ElementShortName">SIM_LIMIT_NS</obj_property>
+      <obj_property name="ObjectShortName">SIM_LIMIT_NS</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/PDU_MAX" type="array">
+      <obj_property name="ElementShortName">PDU_MAX[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PDU_MAX[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/T_FIXED_NS" type="other">
+      <obj_property name="ElementShortName">T_FIXED_NS</obj_property>
+      <obj_property name="ObjectShortName">T_FIXED_NS</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/CDM_RO_ADDR" type="array">
+      <obj_property name="ElementShortName">CDM_RO_ADDR[31:0]</obj_property>
+      <obj_property name="ObjectShortName">CDM_RO_ADDR[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/PS_RESET" type="array">
+      <obj_property name="ElementShortName">PS_RESET[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PS_RESET[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/PS_HDR" type="array">
+      <obj_property name="ElementShortName">PS_HDR[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PS_HDR[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/PS_RW" type="array">
+      <obj_property name="ElementShortName">PS_RW[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PS_RW[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/PS_START" type="array">
+      <obj_property name="ElementShortName">PS_START[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PS_START[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/PS_DATA" type="array">
+      <obj_property name="ElementShortName">PS_DATA[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PS_DATA[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_prim_BiSS_SSI_RX/PS_CWAIT" type="array">
+      <obj_property name="ElementShortName">PS_CWAIT[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PS_CWAIT[31:0]</obj_property>
+   </wvobject>
+</wave_config>

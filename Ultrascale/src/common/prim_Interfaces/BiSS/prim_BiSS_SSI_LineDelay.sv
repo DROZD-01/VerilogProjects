@@ -28,17 +28,18 @@ module prim_BiSS_SSI_LineDelay
     localparam int TAP_W      = RAM_LOG2 + $clog2(OVERSAMPLE/2)
   )
   (
-    input  logic             RST_i             , // System reset
-    input  logic             CLK_i             , // System clock
-    input  logic             TickPulse_i       , // Tick pulse input
-    input  logic             InterfaceMode_i   , // 1'b1 - SSI, 1'b0 - BiSS
-    input  logic             FrameStart_i      , // frame launched (auto mode)
-    input  logic             FrameActive_i     , // MA clocking in progress
-    input  logic             MA_RefEdge_i      , // Reference edge pulse (BiSS - 2nd rising MA edge; SSI - 1st MA edge)
-    input  logic             SL_Synched_i      , // 
-    output logic             Meas_Error_o      , // 
-    output logic             Meas_Done_o       , // 
-    output logic [TAP_W-1:0] TickDelay_o         // Line delay in tick pulses
+    input  logic             RST_i                , // System reset
+    input  logic             CLK_i                , // System clock
+    input  logic             TickPulse_i          , // Tick pulse input
+    input  logic             SET_InterfaceMode_i  , // 1'b1 - SSI, 1'b0 - BiSS
+    input  logic             SET_EN_AutoLD_i      , // per-frame automatic line-delay tracking
+    input  logic             FR_Launch_i          , // frame launched (auto mode)
+    input  logic             FR_Active_i          , // MA clocking in progress
+    input  logic             MA_RefEdge_i         , // Reference edge pulse (BiSS - 2nd rising MA edge; SSI - 1st MA edge)
+    input  logic             SL_Synched_i         , // 
+    output logic             Meas_Error_o         , // 
+    output logic             Meas_Done_o          , // 
+    output logic [TAP_W-1:0] TickDelay_o            // Line delay in tick pulses
   );
   
   // +16 ticks of slack: covers the ~SYNC_FF-clock synchronizer latency
@@ -83,7 +84,7 @@ module prim_BiSS_SSI_LineDelay
   begin
     SL_Negedge  = (SL_Buff & ~SL_Synched_i);
     SL_Edge     = (SL_Buff != SL_Synched_i);
-    Edge_Sel    = (InterfaceMode_i) ? SL_Edge : SL_Negedge;
+    Edge_Sel    = (SET_InterfaceMode_i) ? SL_Edge : SL_Negedge;
     Tap_Timeout = (TickCount >= CNT_W'(LM_TO_TICKS));
     Tap_Overrun = (TickCount >=       (LM_MAX_TAP ));
   end
@@ -93,10 +94,10 @@ module prim_BiSS_SSI_LineDelay
     if(RST_i)
     begin
       Main_SM      <= LM_IDLE;
-      TickCount     <=  'd0;
+      TickCount    <=  'd0;
       Meas_Error_o <= 1'b0;
       Meas_Done_o  <= 1'b0;
-      TickDelay_o   <=  'd0;
+      TickDelay_o  <=  'd0;
     end
     else
     begin
@@ -106,15 +107,19 @@ module prim_BiSS_SSI_LineDelay
       case(Main_SM)
         LM_IDLE :
         begin
-          if(FrameStart_i && MA_RefEdge_i)
+          if(FR_Launch_i && SET_EN_AutoLD_i)
           begin
-            TickCount <= 1'd1;
-            Main_SM  <= LM_WAIT;
-          end
-          else if(FrameStart_i)
-          begin
-            TickCount <= 1'd0;
-            Main_SM  <= LM_ARM;
+            if(MA_RefEdge_i)
+            begin
+              //TickCount <= CNT_W'(OVERSAMPLE/2); // For SSI
+              TickCount <= 1'd1;
+              Main_SM  <= LM_WAIT;
+            end
+            else
+            begin
+              TickCount <= 1'd0;
+              Main_SM  <= LM_ARM;
+            end
           end
         end
         
@@ -125,7 +130,7 @@ module prim_BiSS_SSI_LineDelay
             TickCount <= 1'd1;
             Main_SM  <= LM_WAIT;
           end
-          else if(!FrameActive_i)
+          else if(!FR_Active_i)
           begin
             Main_SM  <= LM_IDLE;
           end
@@ -148,7 +153,7 @@ module prim_BiSS_SSI_LineDelay
             
             Main_SM <= LM_IDLE;
           end 
-          else if (Tap_Timeout || !FrameActive_i) 
+          else if (Tap_Timeout || !FR_Active_i) 
           begin
             Meas_Error_o <= 1'b1;           // keep previous tap (top decides)
             Main_SM      <= LM_IDLE;
