@@ -141,7 +141,7 @@ module prim_BISS_SSI_RX
   logic [         TAP_W-1:0] TickDelay_Active ; // 
   logic [         TAP_W-1:0] TickDelay_Shadow ; // 
   logic                      SL_Sample_Level  ; // 
-  logic                      SL_Sample        ; // 
+  (* syn_maxfan = 16 *) logic                      SL_Sample        ; // 
   logic                      TickHalfP_Empty  ; // 
   
   // internal tick generator + half-period divider
@@ -189,10 +189,10 @@ module prim_BISS_SSI_RX
   always_comb
   begin
     case({SET_InterfaceMode_i, SET_EN_BiSS_CRC_i})
-      2'b00: Set_FrameBits = 1'd1 + 1'd1 + SET_PDUBits_i             ; // BiSS, CRC disabled
-      2'b01: Set_FrameBits = 1'd1 + 1'd1 + SET_PDUBits_i + VAL_CRCBIT; // BiSS, CRC enabled
-      2'b10: Set_FrameBits = SetR_PDUBits                                     ; // SSI
-      2'b11: Set_FrameBits = SetR_PDUBits                                     ; // SSI
+      2'b00: Set_FrameBits = WIDTH_FRAMEBIT'(SET_PDUBits_i              + 1'd1 + 1'd1); // BiSS, CRC disabled
+      2'b01: Set_FrameBits = WIDTH_FRAMEBIT'(SET_PDUBits_i + VAL_CRCBIT + 1'd1 + 1'd1); // BiSS, CRC enabled
+      2'b10: Set_FrameBits = WIDTH_FRAMEBIT'(SetR_PDUBits                            ); // SSI
+      2'b11: Set_FrameBits = WIDTH_FRAMEBIT'(SetR_PDUBits                            ); // SSI
     endcase
   end
   

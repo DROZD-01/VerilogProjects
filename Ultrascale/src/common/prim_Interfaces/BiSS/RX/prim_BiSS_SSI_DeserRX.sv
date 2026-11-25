@@ -73,8 +73,20 @@ module prim_BiSS_SSI_DeserRX
     RX_DONE       = 3'd6   // results latched; wait for frame_active to drop
   } rx_state_e;
   
+  // n-bit all-ones masks, n <= field width (n == width saturates)
+  function automatic logic [MAX_PDUBIT-1:0] pdu_mask_f(logic [WIDTH_PDUBIT-1:0] n);
+    logic [MAX_PDUBIT-1:0] one;
+    one = {{(MAX_PDUBIT-1){1'b0}}, 1'b1};
+    return (one << n) - 1'b1;
+  endfunction
+
+  function automatic logic [MAX_PDUBIT-1:0] cds_mask_f(logic n);
+    logic [MAX_PDUBIT-1:0] one;
+    one = {{(MAX_PDUBIT-1){1'b0}}, 1'b1};
+    return (one << n) - 1'b1;
+  endfunction
   
-  rx_state_e                 Main_SM          ; // 
+  (* syn_encoding = "onehot" *) rx_state_e Main_SM          ; // 
   logic [  MAX_FRAMEBIT-1:0] RX_ShiftReg      ; // left-shift receive barrel, MSB first
   logic [WIDTH_FRAMEBIT-1:0] RX_Bit_Count     ; // bits shifted so far this frame
   logic [  WIDTH_PDUBIT-1:0] RX_Padding_Count ; // SSI-AUTO leading zeros
@@ -84,15 +96,45 @@ module prim_BiSS_SSI_DeserRX
   logic [               1:0] RX_Skip_Count    ; // preamble bits to skip (BiSS manual)
   
   
-  logic [WIDTH_FRAMEBIT-1:0] Index_PDU_Hi     ; // first PDU bit index (after START+CDS)
-  logic [WIDTH_FRAMEBIT-1:0] Index_PDU_Lo     ; // last PDU bit index
-  logic [WIDTH_FRAMEBIT-1:0] TrailingBits     ; // trailing CRC bits (BiSS only)
+  //--------------------------------------------------------------------
+  // Optimization fixtures
+  //--------------------------------------------------------------------
+  
+  logic [WIDTH_FRAMEBIT-1:0] SET_FrameBits_m1 ; // 
+  logic [WIDTH_FRAMEBIT-1:0] RX_CRC_CntStart  ; // 
+  logic [WIDTH_FRAMEBIT-1:0] RX_CRC_CntEnd    ; // 
+  logic                      RX_CRC_Mode      ; // 
+  logic [WIDTH_FRAMEBIT-1:0] RX_IndexCDS      ; // 
+  logic [    MAX_PDUBIT-1:0] RX_PDU_Mask      ; // 
+  
+  always_ff @(posedge CLK_i) 
+  begin
+    if(RST_i)
+    begin
+      SET_FrameBits_m1 <=  'd0;
+      RX_CRC_CntStart  <=  'd0;
+      RX_CRC_CntEnd    <=  'd0;
+      RX_CRC_Mode      <= 1'b0;
+      RX_IndexCDS      <=  'd0;
+    end
+    else if((Main_SM == RX_IDLE) && FR_Launch_i) 
+    begin
+      SET_FrameBits_m1 <= SET_FrameBits_i - 1'd1;
+      RX_CRC_CntStart  <= SET_PDUBits_i + 1'd1;
+      RX_CRC_CntEnd    <= (SET_CRC_InclCDS_i)? 'd1 : 'd2;
+      RX_CRC_Mode      <= ~SET_InterfaceMode_i && SET_EN_BiSS_CRC_i;
+      RX_IndexCDS      <= WIDTH_FRAMEBIT'(((~SET_InterfaceMode_i && SET_EN_BiSS_CRC_i)? WIDTH_FRAMEBIT'(VAL_CRCBIT) : 'd0) + SET_PDUBits_i);
+      RX_PDU_Mask      <= pdu_mask_f(SET_PDUBits_i);
+    end
+  end
+  
+  logic [MAX_PDUBIT-1:0] Mux_CRC0;
+  logic [MAX_PDUBIT-1:0] Mux_CRC6;
   
   always_comb
   begin
-    Index_PDU_Lo = 2'd2;
-    Index_PDU_Hi = Index_PDU_Lo + SET_PDUBits_i - 1'd1;
-    TrailingBits = (~SET_InterfaceMode_i && SET_EN_BiSS_CRC_i)? VAL_CRCBIT : 'd0;
+    Mux_CRC0 = RX_ShiftReg[           MAX_PDUBIT-1:0         ];
+    Mux_CRC6 = RX_ShiftReg[MAX_PDUBIT+VAL_CRCBIT-1:VAL_CRCBIT];
   end
   
   
@@ -104,8 +146,7 @@ module prim_BiSS_SSI_DeserRX
   logic                  CRC_Valid;
   logic [VAL_CRCBIT-1:0] CRC_Out  ;
 
-  assign CRC_Valid  = (Main_SM == RX_RUN) && SL_Sample_i && ~SET_InterfaceMode_i && SET_EN_BiSS_CRC_i &&
-                      (RX_Bit_Count >= (SET_CRC_InclCDS_i ? 'd1 : Index_PDU_Lo)) && (RX_Bit_Count <= Index_PDU_Hi);
+  assign CRC_Valid  = (Main_SM == RX_RUN) && SL_Sample_i && RX_CRC_Mode && (RX_Bit_Count >= RX_CRC_CntEnd) && (RX_Bit_Count <= RX_CRC_CntStart);
 
   prim_CRC_Calculator 
   #(
@@ -127,25 +168,13 @@ module prim_BiSS_SSI_DeserRX
     .CRC_o       (CRC_Out               )
   );
   
-  // n-bit all-ones masks, n <= field width (n == width saturates)
-  function automatic logic [MAX_PDUBIT-1:0] pdu_mask_f(logic [WIDTH_PDUBIT-1:0] n);
-    logic [MAX_PDUBIT-1:0] one;
-    one = {{(MAX_PDUBIT-1){1'b0}}, 1'b1};
-    return (one << n) - 1'b1;
-  endfunction
-
-  function automatic logic [MAX_PDUBIT-1:0] cds_mask_f(logic n);
-    logic [MAX_PDUBIT-1:0] one;
-    one = {{(MAX_PDUBIT-1){1'b0}}, 1'b1};
-    return (one << n) - 1'b1;
-  endfunction
+  
   
   always_ff @(posedge CLK_i) 
   begin
     if(RST_i) 
     begin
       Main_SM           <= RX_IDLE;
-      RX_ShiftReg       <=  'd0;
       RX_Bit_Count      <=  'd0;
       RX_Padding_Count  <=  'd0;
       RX_MSB_Detected   <= 1'b0;
@@ -175,6 +204,7 @@ module prim_BiSS_SSI_DeserRX
         begin
           if(FR_Launch_i)
           begin
+            RX_ShiftReg       <=  'd0;
             RX_Bit_Count      <=  'd0;
             RX_Padding_Count  <=  'd0;
             RX_MSB_Detected   <= 1'b0;
@@ -257,14 +287,14 @@ module prim_BiSS_SSI_DeserRX
             begin
               RX_ShiftReg       <= {RX_ShiftReg[MAX_FRAMEBIT-2:0], SL_Synched_i};
               RX_Bit_Count      <= RX_Bit_Count + 1'd1;
-              if(RX_Bit_Count == (SET_FrameBits_i - 'd1)) Main_SM <= RX_DONE;
+              if(RX_Bit_Count == SET_FrameBits_m1) Main_SM <= RX_DONE;
             end
             else if(~SET_SSI_LenMode_i)
             begin
               RX_ShiftReg       <= {RX_ShiftReg[MAX_FRAMEBIT-2:0], SL_Synched_i};
               RX_Bit_Count      <= RX_Bit_Count + 1'd1;
               RX_PrevBit        <= SL_Synched_i;
-              if(RX_Bit_Count == (SET_FrameBits_i - 'd1)) Main_SM <= RX_M1;
+              if(RX_Bit_Count == SET_FrameBits_m1) Main_SM <= RX_M1;
             end
             else
             begin
@@ -340,17 +370,17 @@ module prim_BiSS_SSI_DeserRX
             
             if(~SET_InterfaceMode_i)
             begin
-              Recv_PDUBits_o    <= MAX_PDUBIT'((RX_ShiftReg >> TrailingBits) & {{(MAX_FRAMEBIT-MAX_PDUBIT){1'b0}}, pdu_mask_f(SET_PDUBits_i)});
+              Recv_PDUBits_o    <= ((RX_CRC_Mode)? Mux_CRC6 : Mux_CRC0) & RX_PDU_Mask;
               Recv_PDULength_o  <= SET_PDUBits_i;
               Recv_SSIPadding_o <= 'd0;
-              Recv_CDSBits_o    <= 1'((RX_ShiftReg >> (TrailingBits + SET_PDUBits_i)) & {{(MAX_FRAMEBIT-1){1'b0}}, cds_mask_f(1'b1)});
+              Recv_CDSBits_o    <= RX_ShiftReg[RX_IndexCDS];
               
               if(SET_EN_BiSS_CRC_i && (RX_ShiftReg[VAL_CRCBIT-1:0] == CRC_Out))
                 Err_BadCRC_o <= 1'b1;
             end
             else if(~SET_SSI_LenMode_i)
             begin
-              Recv_PDUBits_o    <= RX_ShiftReg[MAX_PDUBIT-1:0] & pdu_mask_f(SET_PDUBits_i);
+              Recv_PDUBits_o    <= RX_ShiftReg[MAX_PDUBIT-1:0] & RX_PDU_Mask;
               Recv_PDULength_o  <= SET_PDUBits_i;
               Recv_SSIPadding_o <= 'd0;
               Recv_CDSBits_o    <= 'd0;
@@ -367,7 +397,7 @@ module prim_BiSS_SSI_DeserRX
               end
               else
               begin
-                Recv_PDUBits_o    <=  MAX_PDUBIT'((RX_ShiftReg >> 1) & {{(MAX_FRAMEBIT-MAX_PDUBIT){1'b0}}, pdu_mask_f(RX_Bit_Count - RX_Padding_Count - 1'd1)});
+                Recv_PDUBits_o    <=  RX_ShiftReg[MAX_PDUBIT:1]; 
                 Recv_PDULength_o  <= (RX_Bit_Count - RX_Padding_Count - 1'd1);
               end
               Recv_SSIPadding_o <= RX_Padding_Count;
@@ -383,12 +413,4 @@ module prim_BiSS_SSI_DeserRX
       endcase
     end
   end
-  
-  
-  
-  
-  
-  
-  
-  
 endmodule

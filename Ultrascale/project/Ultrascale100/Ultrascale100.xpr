@@ -102,6 +102,15 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/TX/prim_BiSS_SSI_TX.sv">
+        <FileInfo>
+          <Attr Name="UserDisabled" Val="1"/>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <File Path="$PPRDIR/../../src/coregen/ILA_UART_RX/ILA_UART_RX.xci">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
@@ -168,7 +177,15 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_TX.sv">
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/UART/Interface_UART.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/RX/prim_BiSS_SSI_CDMCtrl.sv">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -208,63 +225,15 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_SRxWRLED.sv">
-        <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PPRDIR/../../src/hdl/top_UART_Test.sv">
-        <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PPRDIR/../../src/hdl/top_Ultrascale100.sv">
-        <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/gen4/cdm_ctrl_fsm.sv">
-        <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/gen4/ma_frame_fsm.sv">
-        <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/gen4/rx_deser_fsm.sv">
-        <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/gen4/biss_ssi_rx_top.sv">
-        <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
       <File Path="$PPRDIR/../../src/common/prim_SRxRLED.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../src/common/prim_SRxWRLED.sv">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -288,7 +257,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/UART/Interface_UART.sv">
+      <File Path="$PPRDIR/../../src/hdl/top_UART_Test.sv">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -296,7 +265,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_CDMCtrl.sv">
+      <File Path="$PPRDIR/../../src/hdl/top_Ultrascale100.sv">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -304,35 +273,82 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/gen4/prim_BiSS_SSI_CDMCtrl_Gen.sv">
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/TX/gen/tb_prim_BiSS_SSI_TX.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/RX/gen/prim_BiSS_SSI_CDMCtrl_GEN.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/RX/prim_BiSS_SSI_DeserRX.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/RX/prim_BiSS_SSI_LineDelay.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/RX/prim_BiSS_SSI_MAGen.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/RX/prim_BiSS_SSI_Pipeline.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/RX/prim_BiSS_SSI_RX.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/TX/gen/prim_BiSS_SSI_TX_CDPSeq.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_DeserRX.sv">
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/TX/gen/prim_BiSS_SSI_TX_Ctrl.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_LineDelay.sv">
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/TX/gen/prim_BiSS_SSI_TX_MAGMon.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_MAGen.sv">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_Pipeline.sv">
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/TX/gen/prim_BiSS_SSI_TX_Ser.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -360,7 +376,14 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_RX.sv">
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_SyncEdge.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/TX/gen/prim_BiSS_SSI_TX.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -369,7 +392,7 @@
       </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
-        <Option Name="TopModule" Val="prim_BISS_SSI_RX"/>
+        <Option Name="TopModule" Val="prim_BiSS_SSI_TX"/>
         <Option Name="ElabLoadTimingContstraints" Val="0"/>
       </Config>
     </FileSet>
@@ -773,47 +796,49 @@
       </Config>
     </FileSet>
     <FileSet Name="BiSS_Test" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/BiSS_Test" RelGenDir="$PGENDIR/BiSS_Test">
+      <Filter Type="Srcs"/>
       <File Path="$PPRDIR/../../src/tb/tb_prim_BiSS_SSI_RX_behav.wcfg">
         <FileInfo>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/gen4/prim_BiSS_SSI_CDMCtrl_GEN.sv">
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/tb_prim_BISS_SSI_RX.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/RX/gen/prim_BiSS_SSI_CDMCtrl_GEN.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_DeserRX.sv">
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/RX/prim_BiSS_SSI_DeserRX.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_LineDelay.sv">
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/RX/prim_BiSS_SSI_LineDelay.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_MAGen.sv">
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/RX/prim_BiSS_SSI_MAGen.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_Pipeline.sv">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_BiSS_SSI_RX.sv">
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/RX/prim_BiSS_SSI_Pipeline.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -841,7 +866,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/tb_prim_BISS_SSI_RX.sv">
+      <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/RX/prim_BiSS_SSI_RX.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -850,7 +875,7 @@
       </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
-        <Option Name="TopModule" Val="tb_prim_BiSS_SSI_RX"/>
+        <Option Name="TopModule" Val="prim_BISS_SSI_RX"/>
         <Option Name="TopLib" Val="xil_defaultlib"/>
         <Option Name="TopAutoSet" Val="TRUE"/>
         <Option Name="TransportPathDelay" Val="0"/>
