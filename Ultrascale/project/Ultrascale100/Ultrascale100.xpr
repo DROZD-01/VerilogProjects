@@ -329,6 +329,7 @@
       </File>
       <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/TX/gen/prim_BiSS_SSI_TX_CDPSeq.sv">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -336,6 +337,7 @@
       </File>
       <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/TX/gen/prim_BiSS_SSI_TX_Ctrl.sv">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -343,6 +345,7 @@
       </File>
       <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/TX/gen/prim_BiSS_SSI_TX_MAGMon.sv">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -350,6 +353,7 @@
       </File>
       <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/TX/gen/prim_BiSS_SSI_TX_Ser.sv">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -357,6 +361,7 @@
       </File>
       <File Path="$PPRDIR/../../src/common/prim_CRC_Calculator/prim_CRC_Calculator.sv">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -364,6 +369,7 @@
       </File>
       <File Path="$PPRDIR/../../src/common/prim_Interfaces/prim_FractionalTickGen_pkg.sv">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -371,6 +377,7 @@
       </File>
       <File Path="$PPRDIR/../../src/common/prim_Interfaces/prim_FractionalTickGen.sv">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -378,12 +385,21 @@
       </File>
       <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/prim_SyncEdge.sv">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
       <File Path="$PPRDIR/../../src/common/prim_Interfaces/BiSS/TX/gen/prim_BiSS_SSI_TX.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../src/common/prim_SafeReg.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -392,7 +408,7 @@
       </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
-        <Option Name="TopModule" Val="prim_BiSS_SSI_TX"/>
+        <Option Name="TopModule" Val="prim_SafeReg"/>
         <Option Name="ElabLoadTimingContstraints" Val="0"/>
       </Config>
     </FileSet>

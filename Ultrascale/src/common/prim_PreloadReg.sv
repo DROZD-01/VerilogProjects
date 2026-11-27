@@ -21,15 +21,14 @@
 
 module prim_PreloadReg
   #(
-    parameter  int                ADDR_W    = 5             , // Address port width
-    parameter  int                DATA_W    = 32            , // Data I/O port width
-    parameter  int                SLICE_W   = 8             , // Slice width
-    parameter  logic [ADDR_W-1:0] ADDR_VAL  = 5'h00         , // Register address in the SPI map
-    parameter  logic [DATA_W-1:0] DEF_VAL   = 32'h0F0F_ABAB , // Power-on default
-    parameter  bit                SLICE_EN  = 1'b1          , // Enable byte-wide write access
-    parameter  bit                LOAD_EN   = 1'b1          , // Enable register preloading
-    
-    localparam int                DATA_SW   = DATA_W/SLICE_W
+    parameter  int                ADDR_W        = 5             , // Address port width
+    parameter  int                DATA_W        = 32            , // Data I/O port width
+    parameter  int                SLICE_W       = 8             , // Slice width
+    parameter  logic [ADDR_W-1:0] ADDR_VAL      = 5'h00         , // Register address in the SPI map
+    parameter  logic [DATA_W-1:0] DEFAULT_VAL   = 32'h0F0F_ABAB , // Power-on default
+    parameter  bit                SLICE_ENABLE  = 1'b1          , // Enable byte-wide write access
+    parameter  bit                LOAD_ENABLE   = 1'b1          , // Enable register preloading
+    localparam int                DATA_SW       = DATA_W/SLICE_W
   )
   (
     input  logic               CLK_i    , // 
@@ -43,22 +42,22 @@ module prim_PreloadReg
   );
   
   initial begin
-    if(SLICE_EN && (DATA_W % DATA_SW != 0)) $error("[prim_PreloadReg]: Slice write access enabled, but DATA_W is not a multiple of DATA_SW");
+    if(SLICE_ENABLE && (DATA_W % DATA_SW != 0)) $error("[prim_PreloadReg]: Slice write access enabled, but DATA_W is not a multiple of DATA_SW");
   end
   
   always_ff @(posedge CLK_i)
   begin
     if(RST_i)
       Q_o <= '{default:0}; 
-    else if(LD_i && LOAD_EN)
-      Q_o <= DATA_W'(DEF_VAL);
+    else if(LD_i && LOAD_ENABLE)
+      Q_o <= DATA_W'(DEFAULT_VAL);
     else if(WE_i && (AD_i == ADDR_VAL))    // normal SPI write
     begin
-      if(SLICE_EN)
+      if(SLICE_ENABLE)
       begin
         for(int i = 0; i < DATA_SW; i = i + 1)
         begin
-          if(SE_i[i]) Q_o[i*8+:8] <= D_i[i*8+:8];
+          if(SE_i[i]) Q_o[i*SLICE_W+:SLICE_W] <= D_i[i*SLICE_W+:SLICE_W];
         end
       end
       else
